@@ -1,0 +1,26 @@
+.organizationList {
+    margin-top: 0;
+    text-align: center;
+    color: var(--standard);
+}
+
+.orgItem {
+    font-size: 1.8em;
+    padding: 0.4em 0.4em;
+    border: 0;
+    border-color: var(--secondary);
+    background-color: white;
+}
+.button {
+    padding: 0.5rem;
+    padding-left: 1em;
+    padding-right: 1em;
+    border-radius: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    font-size: 1.5em;
+    font-weight: bold;
+    border: none;
+    color: var(--secondary);
+    background-color: var(--standard);
+}

@@ -1,0 +1,39 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+html {
+    font-size: 62.5%;
+}
+
+html,
+body {
+    background-color: var(--tertiary);
+    font-family: GT America Medium, sans-serif;
+    font-family: Open Sans, GT America Medium, sans-serif;
+    font-size: 12px;
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    background-color: var(--standard);
+}
+
+:root {
+    --background: #0a6392;
+
+    --secondary: #0e80bb;
+
+    --standard: #f9f9f9;
+
+    --shades: rgb(212, 212, 212);
+
+    --highlight: #c1e4f7;
+}
+
+.root {
+    height: inherit;
+    background-color: var(--background);
+}
+
+#root {
+    height: inherit;
+}

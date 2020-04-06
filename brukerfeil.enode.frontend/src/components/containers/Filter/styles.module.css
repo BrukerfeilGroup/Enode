@@ -1,0 +1,100 @@
+.container {
+    position: absolute;
+    width: 80em;
+    height: fit-content;
+    right: 5px;
+    top: 75px;
+    border-radius: 0em;
+    background-color: #0a6392;
+    color: white;
+    border-width: 0.05em;
+    border-style: solid;
+    border-color: white;
+    flex-wrap: inherit;
+    list-style: none;
+}
+
+.content {
+    max-height: 5em;
+    list-style: none;
+    width: 60em;
+}
+
+.header {
+    font-size: 300%;
+    text-decoration: underline;
+    float: left;
+    margin-top: 0.1em;
+    margin-bottom: 0em;
+    margin-left: 1em;
+}
+
+.header2 {
+    font-size: 300%;
+    text-decoration: underline;
+    float: right;
+    margin-top: 0.1em;
+    margin-bottom: 0em;
+    margin-right: -4em;
+}
+
+.content2 {
+    margin-top: 6em;
+    max-height: 15em;
+    width: 60em;
+}
+
+.table {
+    float: left;
+    column-count: 2;
+    font-size: 150%;
+    list-style: none;
+    margin-bottom: 2em;
+}
+
+.table2 {
+    float: right;
+    font-size: 150%;
+    list-style: none;
+    margin-right: -8em;
+    margin-top: 0em;
+    margin-bottom: 2em;
+}
+
+.bar {
+    position: absolute;
+    width: 1%;
+    height: 200px;
+    background: white;
+    margin-top: -10em;
+    margin-left: -6em;
+}
+
+.checkBox {
+    margin-bottom: 0.5em;
+    cursor: pointer;
+    color: white;
+    background-color: white;
+    margin-right: 1em;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    transform: scale(1.5);
+}
+
+.checkBox:hover {
+    transform: scale(2);
+}
+
+ul {
+    list-style: none;
+    margin-bottom: 0em;
+    margin-top: 0em;
+}
+
+li :hover,
+li :focus {
+    font-weight: bold;
+    list-style: none;
+}

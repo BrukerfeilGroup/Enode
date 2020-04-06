@@ -1,0 +1,55 @@
+{
+    "name": "brukerfeil.enode.frontend",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@testing-library/jest-dom": "^4.2.4",
+        "@testing-library/react": "^9.4.0",
+        "@testing-library/user-event": "^7.2.1",
+        "@types/node": "^12.12.25",
+        "@types/react": "^16.9.19",
+        "@types/react-dom": "^16.9.5",
+        "@types/react-icons": "^3.0.0",
+        "@types/react-router-dom": "^5.1.3",
+        "axios": "^0.19.2",
+        "classnames": "^2.2.6",
+        "downshift": "^4.0.8",
+        "prettier": "^1.19.1",
+        "react": "^16.12.0",
+        "react-dom": "^16.12.0",
+        "react-router-dom": "^5.1.2",
+        "react-scripts": "3.4.0",
+        "react-test-renderer": "^16.12.0",
+        "typescript": "^3.7.5"
+    },
+    "optionalDependencies": {
+        "fsevents": "^2.1.2"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": "react-app"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "@testing-library/react-hooks": "^3.2.1",
+        "@types/classnames": "^2.2.9",
+        "@types/jest": "^24.9.1",
+        "ts-jest": "^25.3.0"
+    }
+}

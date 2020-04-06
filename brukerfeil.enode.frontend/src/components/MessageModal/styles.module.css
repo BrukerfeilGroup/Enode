@@ -1,0 +1,163 @@
+.background {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.container {
+    position: absolute;
+    height: fit-content;
+    width: 70em;
+
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    border-radius: 0.5em;
+    background-color: white;
+}
+
+.header {
+    margin-left: 1.5em;
+    margin-bottom: 0;
+    font-weight: bold;
+    color: var(--secondary);
+}
+
+.exit {
+    float: right;
+    cursor: pointer;
+    width: 2em;
+    border-width: 0px;
+    transition: color 0.3s;
+    font-size: 1.4em;
+    font-weight: bolder;
+    color: black;
+    border-radius: 0.5em;
+    background-color: white;
+}
+
+.exit:hover {
+    color: red;
+}
+
+.messageId {
+    padding-left: 0.5em;
+}
+
+.content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.table {
+    max-width: 35rem;
+    min-width: 35rem;
+    margin: 2em 0;
+    border: 0.1em solid black;
+}
+
+.tableHeader {
+    font-size: 1.5em;
+    color: var(--secondary);
+    border: 0;
+    text-align: left;
+}
+
+.table tr {
+    font-size: 1.2em;
+    border: 0.1em solid black;
+}
+
+.table th {
+    padding: 0.7em;
+    text-align: center;
+    width: 15%;
+    border: 0.1em solid black;
+}
+
+.table td {
+    padding: 0.7em;
+    text-align: left;
+    border: 0.1em solid black;
+}
+
+.timeLine {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding-inline-start: 0;
+    margin-top: 2.5em;
+}
+
+.firstTimeLineItem {
+    position: relative;
+    margin: 0;
+    padding-bottom: 0.5em;
+    padding-left: 1.5em;
+    font-weight: bold;
+    color: var(--background);
+}
+
+.firstTimeLineItem:after {
+    content: '●';
+    position: absolute;
+    left: -0.3em;
+    top: -0.5em;
+    font-size: 5em;
+    color: var(--background);
+    z-index: 20;
+}
+
+.firstTimeLineItem:before {
+    content: '';
+    border-left: 0.2em solid var(--shades);
+    position: absolute;
+    top: 1em;
+    bottom: -5em;
+    left: 0;
+    transform: translateX(-0.1em);
+    margin: 0 0;
+    z-index: 10;
+}
+
+.timeLineItem {
+    position: relative;
+    margin: 0;
+    padding-bottom: 0.5em;
+    padding-left: 1.5em;
+}
+
+.timeLineItem::after {
+    content: '●';
+    position: absolute;
+    left: -0.3em;
+    top: -0.5em;
+    font-size: 5em;
+    color: var(--shades);
+    z-index: 20;
+}
+
+.timeLineItem:before {
+    content: '';
+    border-left: 0.2em solid var(--shades);
+    position: absolute;
+    top: -5em;
+    bottom: 1em;
+    left: 0;
+    transform: translateX(-0.1em);
+    margin: 0 0;
+    z-index: 10;
+}
+
+.lastUpdated {
+    padding-left: 1.4em;
+}

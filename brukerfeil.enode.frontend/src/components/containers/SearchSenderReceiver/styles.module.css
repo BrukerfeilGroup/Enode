@@ -1,0 +1,48 @@
+.searchContainer {
+    float: right;
+}
+
+.search {
+    font-size: inherit;
+    width: auto;
+    padding: 0.3rem;
+    border-radius: 0.3em;
+    border: 0.08em solid #a3a3a370;
+    margin: 0.1em;
+    color: grey;
+    background-color: #ececec;
+}
+
+.clearButton,
+.confirmButton {
+    cursor: pointer;
+    font-size: inherit;
+    padding: 0.2em;
+    margin: 0.1em;
+    border-radius: 0.3em;
+    border: 0.08em solid #a3a3a370;
+    color: grey;
+    background-color: #ececec;
+    /* the following ensures they're all using the same box-model for rendering */
+    -moz-box-sizing: content-box; /* or `border-box` */
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+.confirmButton:hover {
+    color: #f9f9f9;
+    border-color: #399639;
+    background-color: #399639;
+}
+
+.clearButton:hover {
+    color: #f9f9f9;
+    border-color: var(--secondary);
+    background-color: var(--secondary);
+}
+
+.fieldset {
+    border: none;
+    padding: 0px;
+    font-size: 1.3rem;
+}

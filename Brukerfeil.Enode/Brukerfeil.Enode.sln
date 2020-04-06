@@ -1,0 +1,54 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brukerfeil.Enode.Services", "Brukerfeil.Enode.Services\Brukerfeil.Enode.Services.csproj", "{4BCBF1B8-571A-416E-A827-48C04BDF0FBF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brukerfeil.Enode.Repositories", "Brukerfeil.Enode.Repositories\Brukerfeil.Enode.Repositories.csproj", "{AD77705B-8C9D-494E-BAD1-3B74931DD5EF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brukerfeil.Enode.Common", "Brukerfeil.Enode.Common\Brukerfeil.Enode.Common.csproj", "{93D5BE98-C457-4167-9943-D568DC363B36}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brukerfeil.Enode.API", "Brukerfeil.Enode.API\Brukerfeil.Enode.API.csproj", "{D326A829-3D83-43AF-AD4A-2BAA58C4CC02}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brukerfeil.Enode.Tests", "Brukerfeil.Enode.Tests\Brukerfeil.Enode.Tests.csproj", "{7D61C6B1-5C11-431D-9569-849B5E62699F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brukerfeil.Enode.Schemas", "Brukerfeil.Enode.Schemas\Brukerfeil.Enode.Schemas.csproj", "{748FA1ED-FD95-4AAB-80C1-9BEC5EF2CA9A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4BCBF1B8-571A-416E-A827-48C04BDF0FBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BCBF1B8-571A-416E-A827-48C04BDF0FBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BCBF1B8-571A-416E-A827-48C04BDF0FBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BCBF1B8-571A-416E-A827-48C04BDF0FBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD77705B-8C9D-494E-BAD1-3B74931DD5EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD77705B-8C9D-494E-BAD1-3B74931DD5EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD77705B-8C9D-494E-BAD1-3B74931DD5EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD77705B-8C9D-494E-BAD1-3B74931DD5EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93D5BE98-C457-4167-9943-D568DC363B36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93D5BE98-C457-4167-9943-D568DC363B36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93D5BE98-C457-4167-9943-D568DC363B36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93D5BE98-C457-4167-9943-D568DC363B36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D326A829-3D83-43AF-AD4A-2BAA58C4CC02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D326A829-3D83-43AF-AD4A-2BAA58C4CC02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D326A829-3D83-43AF-AD4A-2BAA58C4CC02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D326A829-3D83-43AF-AD4A-2BAA58C4CC02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D61C6B1-5C11-431D-9569-849B5E62699F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D61C6B1-5C11-431D-9569-849B5E62699F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D61C6B1-5C11-431D-9569-849B5E62699F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D61C6B1-5C11-431D-9569-849B5E62699F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{748FA1ED-FD95-4AAB-80C1-9BEC5EF2CA9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{748FA1ED-FD95-4AAB-80C1-9BEC5EF2CA9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{748FA1ED-FD95-4AAB-80C1-9BEC5EF2CA9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{748FA1ED-FD95-4AAB-80C1-9BEC5EF2CA9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {684C1893-8E20-4472-8077-9AA251657582}
+	EndGlobalSection
+EndGlobal
