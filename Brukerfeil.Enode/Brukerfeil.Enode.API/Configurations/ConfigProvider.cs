@@ -23,6 +23,9 @@ namespace Brukerfeil.Enode.API.Configurations
 
         private ConfigProvider()
         {
+        Appsettings_ConfigServerBaseUrl: Environment.ExpandEnvironmentVariables("%CONFIGSERVER_BASEURL%");
+        AppSettings_ConfigServerPassword: Environment.ExpandEnvironmentVariables("%CONFIGSERVER_PASSWORD%");
+
             _localConfigRoot = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
