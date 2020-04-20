@@ -30,8 +30,9 @@ namespace Brukerfeil.Enode.Services
         private async Task<IEnumerable<OrganizationSchema>> GetCachedOrganizationsAsync()
         {
             return await _memoryCache.GetOrCreateAsync("Organizations", async cacheEntry => {
-                var gecko = await _configProvider.GetOrgConfigAsync("MASTER_ORA");
-                var sikri = await _configProvider.GetOrgConfigAsync("MASTER_SQL");
+                var gecko = await _configProvider.GetOrgConfigAsync("FEATURES_MASTER-ORA");
+                var sikri = await _configProvider.GetOrgConfigAsync("FEATURES_MASTER-SQL");
+
                 return new List<OrganizationSchema> { gecko, sikri };
             });
         }

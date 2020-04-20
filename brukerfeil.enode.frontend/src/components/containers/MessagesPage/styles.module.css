@@ -1,7 +1,30 @@
 .container {
     display: flex;
     flex-direction: row;
+    /*100% MINUS height of navbar in order to use whole viewport*/
+    height: calc(100% - 74px);
     justify-content: space-evenly;
     color: #1d1c1d;
     background-color: var(--shades);
+}
+
+@media only screen and (max-width: 1690px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100% - 74px);
+        align-items: center;
+        color: #1d1c1d;
+        background-color: var(--shades);
+    }
+}
+
+.error {
+    color: #d8000c;
+    background-color: #ffd2d2;
+    border: 1px solid;
+    margin: auto;
+    text-align: center;
+    font-size: 2em;
+    vertical-align: middle;
 }

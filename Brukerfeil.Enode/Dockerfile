@@ -2,7 +2,6 @@ FROM  mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 
 WORKDIR /app
 ENV HOME=/root
-ENV ASPNETCORE_ENVIRONMENT Development
 
 COPY Brukerfeil.Enode.sln ./
 COPY Brukerfeil.Enode.API/Brukerfeil.Enode.API.csproj ./Brukerfeil.Enode.API/
@@ -12,6 +11,7 @@ COPY Brukerfeil.Enode.Services/Brukerfeil.Enode.Services.csproj ./Brukerfeil.Eno
 COPY Brukerfeil.Enode.Schemas/Brukerfeil.Enode.Schemas.csproj ./Brukerfeil.Enode.Schemas/
 COPY Brukerfeil.Enode.Tests/Brukerfeil.Enode.Tests.csproj ./Brukerfeil.Enode.Tests/
 COPY nuget.config ./
+
 COPY Brukerfeil.Enode.API/appsettings.json ./appsettings.json
 
 RUN dotnet restore Brukerfeil.Enode.API/Brukerfeil.Enode.API.csproj

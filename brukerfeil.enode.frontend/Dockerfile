@@ -1,5 +1,6 @@
 FROM node:carbon-alpine AS builder
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
 COPY . .

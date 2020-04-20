@@ -3,7 +3,6 @@ import Message from '../../types/Message'
 import Timeline from './Timeline'
 import Table from './Table'
 import styles from './styles.module.css'
-//import useScrollable from '../../hooks/useScrollable'
 
 type MessageModalProps = {
     message: Message

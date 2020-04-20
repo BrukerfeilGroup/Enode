@@ -11,6 +11,8 @@ namespace Brukerfeil.Enode.Common.Models
     public class DifiMessage
     {
         public int id { get; set; }
+        public string messageTitle { get; set; }
+        public DateTime expiry { get; set; }
         public string conversationId { get; set; }
         public string messageId { get; set; }
         public string senderIdentifier { get; set; }

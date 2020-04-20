@@ -1,9 +1,0 @@
-.confirmButton {
-    background-color: green;
-    color: white;
-    height: calc(var(--grid) * 4);
-    width: auto;
-    border-radius: 5px;
-    font-size: 15px;
-    border: none;
-}

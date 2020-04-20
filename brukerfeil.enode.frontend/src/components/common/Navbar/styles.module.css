@@ -5,6 +5,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    height: 74px;
 }
 
 .hamburger {
@@ -50,13 +51,14 @@
 
 .search {
     font-size: inherit;
-    width: auto;
+    width: 225px;
     padding: 0.5rem;
     border-radius: 0.3em;
     border: 0.05em solid grey;
     margin: 0.1em;
     color: grey;
     background-color: var(--standard);
+    transition: width 0.5s;
 }
 
 .clearButton,

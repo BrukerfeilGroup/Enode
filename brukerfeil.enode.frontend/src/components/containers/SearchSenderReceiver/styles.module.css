@@ -1,16 +1,18 @@
 .searchContainer {
-    float: right;
+    margin-left: auto;
+    order: 2;
 }
 
 .search {
     font-size: inherit;
-    width: auto;
+    width: 200px;
     padding: 0.3rem;
     border-radius: 0.3em;
     border: 0.08em solid #a3a3a370;
     margin: 0.1em;
     color: grey;
     background-color: #ececec;
+    transition: width 0.5s;
 }
 
 .clearButton,
@@ -27,6 +29,7 @@
     -moz-box-sizing: content-box; /* or `border-box` */
     -webkit-box-sizing: content-box;
     box-sizing: content-box;
+    transition: background-color 0.5s, border-color 0.5s, color 0.5s;
 }
 
 .confirmButton:hover {

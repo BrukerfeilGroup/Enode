@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+@import url(https://fonts.googleapis.com/css?family=Noto+Sans|Open+Sans&display=swap);
 
 html {
     font-size: 62.5%;
@@ -6,9 +6,8 @@ html {
 
 html,
 body {
-    background-color: var(--tertiary);
     font-family: GT America Medium, sans-serif;
-    font-family: Open Sans, GT America Medium, sans-serif;
+    font-family: Noto Sans, GT America Medium, sans-serif;
     font-size: 12px;
     height: 100%;
     width: 100%;
@@ -36,4 +35,22 @@ body {
 
 #root {
     height: inherit;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #e2e0e0;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #828283;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #626263;
 }

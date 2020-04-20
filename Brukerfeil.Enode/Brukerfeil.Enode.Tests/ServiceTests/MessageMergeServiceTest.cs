@@ -4,6 +4,8 @@ using Xunit;
 using Brukerfeil.Enode.Common.Models;
 using Brukerfeil.Enode.Services;
 using System.Linq;
+using Brukerfeil.Enode.Common.Repositories;
+using Moq;
 
 namespace Brukerfeil.Enode.Tests.ServiceTests
 {
@@ -62,35 +64,19 @@ namespace Brukerfeil.Enode.Tests.ServiceTests
             };
             return eleMessageArray;
         }
-        private Message GetMessageMergeService()
-        {
-            //Arrange
-            var mergeService = new MessageMergeService();
-            //Act
-            var actual = mergeService.MergeMessages(_difiMessage1, _eleMessage1);
-            return actual;
-        }
-        private List<Message> GetMessageMergeListInService()
-        {
-            //Arrange
-            var mergeService = new MessageMergeService();
-            //Act
-            var difiMessageList = GetDifiMessageObjectList();
-            var elementsMessageList = GetElementsMessageObjectList();
-            var actual = mergeService.MergeMessagesListsIn(difiMessageList, elementsMessageList).ToList();
-            return actual;
-        }
-        private List<Message> GetMessageMergeListOutService()
-        {
-            //Arrange
-            var mergeService = new MessageMergeService();
-            //Act
-            var difiMessageList = GetDifiMessageObjectList();
-            var elementsMessageList = GetElementsMessageObjectList();
-            var actual = mergeService.MergeMessagesListsOut(elementsMessageList, difiMessageList).ToList();
-            return actual;
-        }
 
+        private MessageMergeService GetMessageMergeService()
+        {
+            var mockElementsMessageRepository = new Mock<IElementsMessageRepository>();
+            mockElementsMessageRepository.Setup(repository => repository.GetElementsMessageAsync("922308055", "test1")).ReturnsAsync(_eleMessage1);
+
+            var mockDifiMessageRepository = new Mock<IDifiMessageRepository>();
+            mockDifiMessageRepository.Setup(repository => repository.GetDifiMessageAsync("922308055", "test1")).ReturnsAsync(_difiMessage1);
+
+            var mergeService = new MessageMergeService(mockElementsMessageRepository.Object, mockDifiMessageRepository.Object);
+
+            return mergeService;
+        }
 
 
         //////////////////////
@@ -101,186 +87,356 @@ namespace Brukerfeil.Enode.Tests.ServiceTests
         [Fact]
         public void TestMergeMessagesNotNull()
         {
-            var actual = GetMessageMergeService();
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = messageMergeService.MergeMessages(_difiMessage1, _eleMessage1);
+
+            //Assert
             Assert.NotNull(actual);
         }
         [Fact]
         public void TestMergeMessagesType()
         {
-            var actual = GetMessageMergeService();
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = messageMergeService.MergeMessages(_difiMessage1, _eleMessage1);
+
+            //Assert
             Assert.IsType<Message>(actual);
         }
         [Fact]
         public void TestMergeMessagesCorrectMatch()
         {
-            var actual = GetMessageMergeService();
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = messageMergeService.MergeMessages(_difiMessage1, _eleMessage1);
+            
+            //Assert
             Assert.Equal(actual.DifiMessage.messageId, actual.ElementsMessage.ConversationId);
         }
         [Fact]
         public void TestMergeMessagesMergingFieldSenderIdentifier()
         {
-            var actual = GetMessageMergeService();
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = messageMergeService.MergeMessages(_difiMessage1, _eleMessage1);
+
+            //Assert
             Assert.Equal(actual.DifiMessage.senderIdentifier, _difiMessage1.senderIdentifier);
         }
         [Fact]
         public void TestMergeMessagesMergingFieldIsRead()
         {
-            var actual = GetMessageMergeService();
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = messageMergeService.MergeMessages(_difiMessage1, _eleMessage1);
+
+            //Assert
             Assert.Equal(actual.ElementsMessage.IsRead, _eleMessage1.IsRead);
         }
 
 
-
-
         //Method MergeMessagesListsIn()
         [Fact]
-        public void TestMergeMessagesListInNotNull()
+        public async void TestMergeMessagesListInNotNull()
         {
-            var actual = GetMessageMergeListInService();
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
             Assert.NotNull(actual);
         }
         [Fact]
-        public void TestMergeMessagesListInHasEntries()
+        public async void TestMergeMessagesListInHasEntries()
         {
-            var actual = GetMessageMergeListInService();
-            Assert.NotNull(actual[0]);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
+            Assert.NotNull(actual.ToList().ElementAt(0));
         }
         [Fact]
-        public void TestMergeMessagesListInType()
+        public async void TestMergeMessagesListInType()
         {
-            var actual = GetMessageMergeListInService();
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
             Assert.IsType<List<Message>>(actual);
         }
         [Fact]
-        public void TestMergeMessagesListInEntriesType1()
+        public async void TestMergeMessagesListInEntriesType1()
         {
-            var actual = GetMessageMergeListInService();
-            Assert.IsType<Message>(actual[0]);
-        }
-        [Fact]
-        public void TestMergeMessagesListInEntriesType2()
-        {
-            var actual = GetMessageMergeListInService();
-            Assert.IsType<DifiMessage>(actual[0].DifiMessage);
-        }
-        [Fact]
-        public void TestMergeMessagesListInEntriesType3()
-        {
-            var actual = GetMessageMergeListInService();
-            Assert.IsType<ElementsMessage>(actual[0].ElementsMessage);
-        }
-        [Fact]
-        public void TestMergeMessagesListInCorrectMatch1()
-        {
-            var actual = GetMessageMergeListInService();
-            Assert.Equal(actual[0].DifiMessage.messageId, actual[0].ElementsMessage.ConversationId);
-        }
-        [Fact]
-        public void TestMergeMessagesListInCorrectMatch2()
-        {
-            var actual = GetMessageMergeListInService();
-            Assert.Equal(actual[1].DifiMessage.messageId, actual[1].ElementsMessage.ConversationId);
-        }
-        [Fact]
-        public void TestMergeMessagesListInMergingFieldSenderIdentifier1()
-        {
-            var actual = GetMessageMergeListInService();
-            Assert.Equal(actual[0].DifiMessage.senderIdentifier, _difiMessage1.senderIdentifier);
-        }
-        [Fact]
-        public void TestMergeMessagesListInMergingFieldSenderIdentifier2()
-        {
-            var actual = GetMessageMergeListInService();
-            Assert.Equal(actual[1].DifiMessage.senderIdentifier, _difiMessage2.senderIdentifier);
-        }
-        [Fact]
-        public void TestMergeMessagesListInMergingFieldIsRead1()
-        {
-            var actual = GetMessageMergeListInService();
-            Assert.Equal(actual[0].ElementsMessage.IsRead, _eleMessage1.IsRead);
-        }
-        [Fact]
-        public void TestMergeMessagesListInMergingFieldIsRead2()
-        {
-            var actual = GetMessageMergeListInService();
-            Assert.Equal(actual[1].ElementsMessage.IsRead, _eleMessage2.IsRead);
-        }
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
 
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
 
+            //Assert
+            Assert.IsType<Message>(actual.ToList().ElementAt(0));
+        }
+        [Fact]
+        public async void TestMergeMessagesListInEntriesType2()
+        {
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
+            Assert.IsType<DifiMessage>(actual.ToList().ElementAt(0).DifiMessage);
+        }
+        [Fact]
+        public async void TestMergeMessagesListInEntriesType3()
+        {
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
+            Assert.IsType<ElementsMessage>(actual.ToList().ElementAt(0).ElementsMessage);
+        }
+        [Fact]
+        public async void TestMergeMessagesListInCorrectMatch1()
+        {
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(0).DifiMessage.messageId, actual.ToList().ElementAt(0).ElementsMessage.ConversationId);
+        }
+        [Fact]
+        public async void TestMergeMessagesListInCorrectMatch2()
+        {
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(0).DifiMessage.messageId, actual.ToList().ElementAt(0).ElementsMessage.ConversationId);
+        }
+        [Fact]
+        public async void TestMergeMessagesListInMergingFieldSenderIdentifier1()
+        {
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(0).DifiMessage.senderIdentifier, _difiMessage1.senderIdentifier);
+        }
+        [Fact]
+        public async void TestMergeMessagesListInMergingFieldSenderIdentifier2()
+        {
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(1).DifiMessage.senderIdentifier, _difiMessage2.senderIdentifier);
+        }
+        [Fact]
+        public async void TestMergeMessagesListInMergingFieldIsRead1()
+        {
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(0).ElementsMessage.IsRead, _eleMessage1.IsRead);
+        }
+        [Fact]
+        public async void TestMergeMessagesListInMergingFieldIsRead2()
+        {
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsInAsync("922308055", GetDifiMessageObjectList(), GetElementsMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(1).ElementsMessage.IsRead, _eleMessage2.IsRead);
+        }
 
 
         //Method MergeMessagesListsOut()
         [Fact]
-        public void TestMergeMessagesListOutNotNull()
+        public async void TestMergeMessagesListOutNotNull()
         {
-            var actual = GetMessageMergeListOutService();
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
             Assert.NotNull(actual);
         }
         [Fact]
-        public void TestMergeMessagesListOutHasEntries()
+        public async void TestMergeMessagesListOutHasEntries()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.NotNull(actual[0]);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.NotNull(actual.ToList().ElementAt(0));
         }
         [Fact]
-        public void TestMergeMessagesListOutType()
+        public async void TestMergeMessagesListOutType()
         {
-            var actual = GetMessageMergeListOutService();
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
             Assert.IsType<List<Message>>(actual);
         }
         [Fact]
-        public void TestMergeMessagesListOutEntriesType1()
+        public async void TestMergeMessagesListOutEntriesType1()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.IsType<Message>(actual[0]);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.IsType<Message>(actual.ToList().ElementAt(0));
         }
         [Fact]
-        public void TestMergeMessagesListOutEntriesType2()
+        public async void TestMergeMessagesListOutEntriesType2()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.IsType<DifiMessage>(actual[0].DifiMessage);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.IsType<DifiMessage>(actual.ToList().ElementAt(0).DifiMessage);
         }
         [Fact]
-        public void TestMergeMessagesListOutEntriesType3()
+        public async void TestMergeMessagesListOutEntriesType3()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.IsType<ElementsMessage>(actual[0].ElementsMessage);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.IsType<ElementsMessage>(actual.ToList().ElementAt(0).ElementsMessage);
         }
         [Fact]
-        public void TestMergeMessagesListOutCorrectMatch1()
+        public async void TestMergeMessagesListOutCorrectMatch1()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.Equal(actual[0].DifiMessage.messageId, actual[0].ElementsMessage.ConversationId);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(0).DifiMessage.messageId, actual.ToList().ElementAt(0).ElementsMessage.ConversationId);
         }
         [Fact]
-        public void TestMergeMessagesListOutCorrectMatch2()
+        public async void TestMergeMessagesListOutCorrectMatch2()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.Equal(actual[1].DifiMessage.messageId, actual[1].ElementsMessage.ConversationId);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(1).DifiMessage.messageId, actual.ToList().ElementAt(1).ElementsMessage.ConversationId);
         }
         [Fact]
-        public void TestMergeMessagesListOutMergingFieldSenderIdentifier1()
+        public async void TestMergeMessagesListOutMergingFieldSenderIdentifier1()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.Equal(actual[0].DifiMessage.senderIdentifier, _difiMessage1.senderIdentifier);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(0).DifiMessage.senderIdentifier, _difiMessage1.senderIdentifier);
         }
         [Fact]
-        public void TestMergeMessagesListOutMergingFieldSenderIdentifier2()
+        public async void TestMergeMessagesListOutMergingFieldSenderIdentifier2()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.Equal(actual[1].DifiMessage.senderIdentifier, _difiMessage2.senderIdentifier);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(1).DifiMessage.senderIdentifier, _difiMessage2.senderIdentifier);
         }
         [Fact]
-        public void TestMergeMessagesListOutMergingFieldIsRead1()
+        public async void TestMergeMessagesListOutMergingFieldIsRead1()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.Equal(actual[0].ElementsMessage.IsRead, _eleMessage1.IsRead);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(0).ElementsMessage.IsRead, _eleMessage1.IsRead);
         }
         [Fact]
-        public void TestMergeMessagesListOutMergingFieldIsRead2()
+        public async void TestMergeMessagesListOutMergingFieldIsRead2()
         {
-            var actual = GetMessageMergeListOutService();
-            Assert.Equal(actual[1].ElementsMessage.IsRead, _eleMessage2.IsRead);
+            //Arrange
+            var messageMergeService = GetMessageMergeService();
+
+            //Act
+            var actual = await messageMergeService.MergeMessagesListsOutAsync("922308055", GetElementsMessageObjectList(), GetDifiMessageObjectList());
+
+            //Assert
+            Assert.Equal(actual.ToList().ElementAt(1).ElementsMessage.IsRead, _eleMessage2.IsRead);
         }
     }
 }

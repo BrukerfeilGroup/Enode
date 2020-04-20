@@ -23,8 +23,6 @@ namespace Brukerfeil.Enode.API.Configurations
 
         private ConfigProvider()
         {
-        Appsettings_ConfigServerBaseUrl: Environment.ExpandEnvironmentVariables("%CONFIGSERVER_BASEURL%");
-        AppSettings_ConfigServerPassword: Environment.ExpandEnvironmentVariables("%CONFIGSERVER_PASSWORD%");
 
             _localConfigRoot = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -52,8 +50,9 @@ namespace Brukerfeil.Enode.API.Configurations
 
         public string GetGlobalConfiguration(string key)
         {
-            return _localConfigRoot[($"appsettings:{key}")];
-
+            var localConfig = _localConfigRoot[($"appsettings:{key}")];
+            var localConfigExpanded = string.IsNullOrEmpty(localConfig) ? localConfig : Environment.ExpandEnvironmentVariables(localConfig);
+            return localConfigExpanded;
         }
 
 

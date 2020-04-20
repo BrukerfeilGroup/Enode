@@ -15,128 +15,10 @@ namespace Brukerfeil.Enode.Tests
 {
     public class MessagesControllerTest
     {
-        private IEnumerable<DifiMessage> GetIncomingMessageObject()
-        {
-            var incomingMessage = new List<DifiMessage>
-            {
-                new DifiMessage
-                {
-                    lastUpdate = DateTime.Now,
-                    receiverIdentifier = "987464291",
-                    direction = "INCOMING",
-                }
-            };
 
-            return incomingMessage;
-        }
-
-        private IEnumerable<DifiMessage> GetOutgoingMessageObject()
-        {
-
-            var outgoingMessage = new List<DifiMessage>
-            {
-                new DifiMessage
-                {
-                    lastUpdate = DateTime.Now,
-                    senderIdentifier = "989778471",
-                    direction = "OUTGOING",
-                }
-            };
-            return outgoingMessage;
-        }
-
-        private List<DifiMessage> GetMessageObject()
-        {
-
-            var messageObject = new List<DifiMessage>
-            {
-                new DifiMessage
-                {
-                    id = 11,
-                    conversationId = "40c8ccb8-aed8-4e1f-b87e-e27c0895813d",
-                    senderIdentifier = "987464291",
-                    receiverIdentifier = "989778471",
-                },
-                new DifiMessage
-                {
-                    id = 22,
-                    conversationId = "40c8ccb8-aed8-4e1f-b87e-e27c0895813d",
-                    senderIdentifier = "987464291",
-                    receiverIdentifier = "989778471",
-                }
-            };
-            return messageObject;
-        }
-
-
-        //////////////////////
-        ///  UPDATED STUFF ///   
-        //////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        ///////////////////////////////////////////////
-        ///   METHODS TO GET OBJECTS TO TEST WITH   ///   
-        ///////////////////////////////////////////////
-
-        private List<DifiMessage> GetDifiMessageList()
-        {
-            var difiMessages = new List<DifiMessage>
-            {
-                new DifiMessage
-                {
-                    id = 178,
-                    conversationId = "aaed7220-2a0d-45a6-a2a4-3b24a069e08b",
-                    messageId = "aaed7220-2a0d-45a6-a2a4-3b24a069e08b",
-                    senderIdentifier = "989778471",
-                    receiverIdentifier = "922308055",
-                    lastUpdate = DateTime.Now,
-                    direction = "INCOMING",
-                    serviceIdentifier = "DPO",
-                    latestMessageStatus = null,
-                    created = DateTime.Now,
-                },
-                new DifiMessage
-                {
-                    id = 179,
-                    conversationId = "wrong Id",
-                    messageId = "wrong Id",
-                    senderIdentifier = "989778471",
-                    receiverIdentifier = "922308055",
-                    lastUpdate = DateTime.Now,
-                    direction = "INCOMING",
-                    serviceIdentifier = "DPO",
-                    latestMessageStatus = null,
-                    created = DateTime.Now,
-                }
-            };
-            return difiMessages;
-        }
-
-        private List<ElementsMessage> GetElementsMessageList()
-        {
-            var elementsMessages = new List<ElementsMessage>
-            {
-                new ElementsMessage
-                {
-                    Id = 9282,
-                    CreatedDate = DateTime.Now,
-                    IsRead = null,
-                    ConversationId = "aaed7220-2a0d-45a6-a2a4-3b24a069e08b",
-                    SendingMethod = null,
-                    SendingStatus = null,
-                },
-                new ElementsMessage
-                {
-                    Id = 9283,
-                    CreatedDate = DateTime.Now,
-                    IsRead = null,
-                    ConversationId = "wrong Id",
-                    SendingMethod = null,
-                    SendingStatus = null,
-                }
-            };
-            return elementsMessages;
-        }
+        /////////////////
+        ///   Stubs   ///   
+        /////////////////
 
         private List<Message> GetMessageList()
         {
@@ -196,6 +78,7 @@ namespace Brukerfeil.Enode.Tests
             return messages;
         }
 
+        //Setup methods
         private async Task<ActionResult<Message>> GetMessageAsyncActualAsync()
         {
             var message = GetMessageList().ElementAt(0);
@@ -226,7 +109,7 @@ namespace Brukerfeil.Enode.Tests
             mockDifiMessageRepository.Setup(repository => repository.GetDifiMessagesAsync("922308055", Direction.INCOMING)).ReturnsAsync(difiList);
 
             var mockMessageMergeService = new Mock<IMessageMergeService>();
-            mockMessageMergeService.Setup(service => service.MergeMessagesListsIn(difiList, elementsList)).Returns(messages);
+            mockMessageMergeService.Setup(service => service.MergeMessagesListsInAsync("922308055", difiList, elementsList)).ReturnsAsync(messages);
 
             var mockMessagesService = new Mock<IMessagesService>();
             mockMessagesService.Setup(service => service.AddLatestStatus(difiList)).Returns(difiList);
@@ -248,13 +131,57 @@ namespace Brukerfeil.Enode.Tests
             mockDifiMessageRepository.Setup(repository => repository.GetDifiMessagesAsync("922308055", Direction.OUTGOING)).ReturnsAsync(difiList);
 
             var mockMessageMergeService = new Mock<IMessageMergeService>();
-            mockMessageMergeService.Setup(service => service.MergeMessagesListsOut(elementsList, difiList)).Returns(messages);
+            mockMessageMergeService.Setup(service => service.MergeMessagesListsOutAsync("922308055", elementsList, difiList)).ReturnsAsync(messages);
 
             var mockMessagesService = new Mock<IMessagesService>();
             mockMessagesService.Setup(service => service.AddLatestStatus(difiList)).Returns(difiList);
 
             var messageController = new MessagesController();
             var actual = await messageController.GetOutgoingMessagesAsync("922308055", mockMessageMergeService.Object, mockElementsMessageRepository.Object, mockDifiMessageRepository.Object, mockMessagesService.Object);
+            return actual;
+        }
+
+        private async Task<ActionResult<IEnumerable<Message>>> GetMessagesBySenderIdAsyncActualAsync()
+        {
+            var messages = GetMessageList();
+            var mockDifiMessageRepository = new Mock<IDifiMessageRepository>();
+            var difiList = new List<DifiMessage> { messages.ElementAt(0).DifiMessage, messages.ElementAt(1).DifiMessage };
+            mockDifiMessageRepository.Setup(repository => repository.GetMessagesBySenderIdAsync("989778471", "922308055")).ReturnsAsync(difiList);
+
+            var mockElementsMessageRepisitory = new Mock<IElementsMessageRepository>();
+            var elementsList = new List<ElementsMessage> { messages.ElementAt(0).ElementsMessage, messages.ElementAt(1).ElementsMessage };
+            mockElementsMessageRepisitory.Setup(repository => repository.GetElementsMessagesBySenderIdAsync("989778471", "922308055")).ReturnsAsync(elementsList);
+
+            var mockMessageMergeService = new Mock<IMessageMergeService>();
+            mockMessageMergeService.Setup(service => service.MergeMessagesListsInAsync("989778471", difiList, elementsList)).ReturnsAsync(messages);
+
+            var mockMessagesService = new Mock<IMessagesService>();
+            mockMessagesService.Setup(service => service.AddLatestStatus(difiList)).Returns(difiList);
+
+            var messageController = new MessagesController();
+            var actual = await messageController.GetMessagesBySenderIdAsync("989778471", "922308055", mockMessageMergeService.Object, mockDifiMessageRepository.Object, mockElementsMessageRepisitory.Object, mockMessagesService.Object);
+            return actual;
+        }
+
+        private async Task<ActionResult<IEnumerable<Message>>> GetMessagesByReceiverIdAsyncActualAsync()
+        {
+            var messages = GetMessageList();
+            var mockDifiMessageRepository = new Mock<IDifiMessageRepository>();
+            var difiList = new List<DifiMessage> { messages.ElementAt(0).DifiMessage, messages.ElementAt(1).DifiMessage };
+            mockDifiMessageRepository.Setup(repository => repository.GetMessagesByReceiverIdAsync("922308055", "989778471")).ReturnsAsync(difiList);
+
+            var mockElementsMessageRepisitory = new Mock<IElementsMessageRepository>();
+            var elementsList = new List<ElementsMessage> { messages.ElementAt(0).ElementsMessage, messages.ElementAt(1).ElementsMessage };
+            mockElementsMessageRepisitory.Setup(repository => repository.GetElementsMessagesByReceiverIdAsync("922308055", "989778471")).ReturnsAsync(elementsList);
+
+            var mockMessageMergeService = new Mock<IMessageMergeService>();
+            mockMessageMergeService.Setup(service => service.MergeMessagesListsOutAsync("922308055", elementsList, difiList)).ReturnsAsync(messages);
+
+            var mockMessagesService = new Mock<IMessagesService>();
+            mockMessagesService.Setup(service => service.AddLatestStatus(difiList)).Returns(difiList);
+
+            var messageController = new MessagesController();
+            var actual = await messageController.GetMessagesByReceiverIdAsync("922308055", "989778471", mockDifiMessageRepository.Object, mockMessageMergeService.Object, mockElementsMessageRepisitory.Object, mockMessagesService.Object);
             return actual;
         }
 
@@ -386,5 +313,52 @@ namespace Brukerfeil.Enode.Tests
             Assert.Equal(actual.Value.ToList().ElementAt(1).DifiMessage.messageId, actual.Value.ToList().ElementAt(1).ElementsMessage.ConversationId);
         }
 
+        //Tests for GetMessagesBySenderIdAsync
+
+        [Fact]
+        public async void TestGetMessagesBySenderIdAsyncNotNull()
+        {
+            var actual = await GetMessagesBySenderIdAsyncActualAsync();
+            Assert.NotNull(actual.Value);
+        }
+
+        [Fact]
+        public async void TestGetMessagesBySenderIdAsyncType()
+        {
+            var actual = await GetMessagesBySenderIdAsyncActualAsync();
+            Assert.IsType<Message>(actual.Value.ToList().ElementAt(0));
+        }
+
+        [Fact]
+        public async void TestGetMessagesBySenderIdAsyncReturnsObjectWithCorrectSenderId()
+        {
+            var expected = GetMessageList();
+            var actual = await GetMessagesBySenderIdAsyncActualAsync();
+            Assert.True(actual.Value.ToList().ElementAt(0).DifiMessage.senderIdentifier == expected.ElementAt(0).DifiMessage.senderIdentifier);
+        }
+
+        //Tests for GetMessagesByReceiverIdAsync
+
+        [Fact]
+        public async void TestGetMessagesByReceiverIdAsyncNotNull()
+        {
+            var actual = await GetMessagesByReceiverIdAsyncActualAsync();
+            Assert.NotNull(actual.Value);
+        }
+
+        [Fact]
+        public async void TestGetMessagesByReceiverIdAsyncType()
+        {
+            var actual = await GetMessagesByReceiverIdAsyncActualAsync();
+            Assert.IsType<Message>(actual.Value.ToList().ElementAt(0));
+        }
+
+        [Fact]
+        public async void TestGetMessagesByReceiverIdAsyncReturnsObjectWithCorrectReceiverId()
+        {
+            var expected = GetMessageList();
+            var actual = await GetMessagesByReceiverIdAsyncActualAsync();
+            Assert.True(actual.Value.ToList().ElementAt(0).DifiMessage.receiverIdentifier == expected.ElementAt(0).DifiMessage.receiverIdentifier);
+        }
     }
 }

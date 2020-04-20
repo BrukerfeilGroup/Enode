@@ -1,0 +1,28 @@
+.loading {
+    font-size: xx-large;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    margin-top: 8px;
+    border: 4px solid black;
+    border-bottom: none;
+    border-left: none;
+    border-right: 2px;
+    border-radius: 100%;
+    animation: spinning 1s linear infinite;
+    background-color: var(--background);
+}
+
+@keyframes spinning {
+    40% {
+        transform: rotate(60deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

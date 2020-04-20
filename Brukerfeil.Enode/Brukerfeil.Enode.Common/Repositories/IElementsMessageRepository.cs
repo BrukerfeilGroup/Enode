@@ -9,5 +9,7 @@ namespace Brukerfeil.Enode.Common.Repositories
     {
         Task<IEnumerable<ElementsMessage>> GetElementsMessagesAsync(string organizationId, Direction direction);
         Task<ElementsMessage> GetElementsMessageAsync(string organizationId, string msgId);
+        Task<IEnumerable<ElementsMessage>> GetElementsMessagesBySenderIdAsync(string orgId, string senderId);
+        Task<IEnumerable<ElementsMessage>> GetElementsMessagesByReceiverIdAsync(string orgId, string receiverId);
     }
 }

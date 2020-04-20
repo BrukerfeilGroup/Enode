@@ -6,6 +6,8 @@ using Brukerfeil.Enode.Common.Services;
 using System.Collections.Generic;
 using System.Linq;
 using Brukerfeil.Enode.Common.Enums;
+using System;
+using Brukerfeil.Enode.Common.Exceptions;
 
 namespace Brukerfeil.Enode.API.Controllers
 {
@@ -21,7 +23,7 @@ namespace Brukerfeil.Enode.API.Controllers
                 var difiMessagesList = await difiMessageRepository.GetDifiMessagesAsync(organizationId, Direction.INCOMING);
                 difiMessagesList = messagesService.AddLatestStatus(difiMessagesList);
                 var elementsMessagesList = await elementsMessageRepository.GetElementsMessagesAsync(organizationId, Direction.INCOMING);
-                var combinedMessagesList = messageMergeService.MergeMessagesListsIn(difiMessagesList, elementsMessagesList);
+                var combinedMessagesList = await messageMergeService.MergeMessagesListsInAsync(organizationId, difiMessagesList, elementsMessagesList);
                 if (combinedMessagesList.ToList().Count() == 0)
                 {
                     return NotFound();
@@ -30,7 +32,18 @@ namespace Brukerfeil.Enode.API.Controllers
             }
             catch (System.InvalidOperationException ex)
             {
-                return this.StatusCode(402, ex.Message);
+                return this.StatusCode(400, ex.Message);
+            }
+            catch (InvalidMessageQueryParameterException ex)
+            {
+                //Fix statuscode
+                return this.StatusCode(400, ex.Message);
+            }
+            catch (Exception)
+            {
+                var difiMessagesList = await difiMessageRepository.GetDifiMessagesAsync(organizationId, Direction.INCOMING);
+                var combinedMessagesList = await messageMergeService.MergeMessagesListsInAsync(organizationId, difiMessagesList, null);
+                return combinedMessagesList.ToList();
             }
         }
 
@@ -42,7 +55,7 @@ namespace Brukerfeil.Enode.API.Controllers
                 var difiMessagesList = await difiMessageRepository.GetDifiMessagesAsync(organizationId, Direction.OUTGOING);
                 difiMessagesList = messagesService.AddLatestStatus(difiMessagesList);
                 var elementsMessagesList = await elementsMessageRepository.GetElementsMessagesAsync(organizationId, Direction.OUTGOING);
-                var combinedMessagesList = messageMergeService.MergeMessagesListsOut(elementsMessagesList, difiMessagesList);
+                var combinedMessagesList = await messageMergeService.MergeMessagesListsOutAsync(organizationId, elementsMessagesList, difiMessagesList);
                 if (combinedMessagesList.ToList().Count() == 0)
                 {
                     return NotFound();
@@ -51,40 +64,47 @@ namespace Brukerfeil.Enode.API.Controllers
             }
             catch (System.InvalidOperationException ex)
             {
-                return this.StatusCode(402, ex.Message);
+                return this.StatusCode(400, ex.Message);
             }
-        }
-
-        //Todo
-        [HttpGet("sender/{senderId}", Name = "GetOrgMessagesBySenderIdAsync")]
-        public async Task<ActionResult<IEnumerable<Message>>> GetOrgMessagesBySenderIdAsync(string organizationId, [FromServices] IMessageMergeService messageMergeService, [FromServices] IDifiMessageRepository difiMessageRepository, [FromServices] IElementsMessageRepository elementsMessageRepository)
-        {
-            try
+            catch (Exception)
             {
-                var difiMessagesList = await difiMessageRepository.GetDifiMessagesAsync(organizationId, Direction.INCOMING);
-                var elementsMessagesList = await elementsMessageRepository.GetElementsMessagesAsync(organizationId, Direction.INCOMING);
-                var combinedMessagesList = messageMergeService.MergeMessagesListsIn(difiMessagesList, elementsMessagesList);
-                if (combinedMessagesList.ToList().Count() == 0)
-                {
-                    return NotFound();
-                }
-                return combinedMessagesList.ToList();
-            }
-            catch (System.InvalidOperationException ex)
-            {
-                return this.StatusCode(402, ex.Message);
-            }
-        }
-
-        //Todo
-        [HttpGet("receiver/{receiverId}", Name = "GetOrgMessagesByReceiverIdAsync")]
-        public async Task<ActionResult<IEnumerable<Message>>> GetOrgMessagesByReceiverIdAsync(string organizationId, string receiverId, [FromServices] IDifiMessageRepository difiMessageRepository, [FromServices] IMessageMergeService messageMergeService, [FromServices] IElementsMessageRepository elementsMessageRepository)
-        {
-            try
-            {
-                var difiMessagesList = await difiMessageRepository.GetDifiMessagesAsync(organizationId, Direction.OUTGOING);
                 var elementsMessagesList = await elementsMessageRepository.GetElementsMessagesAsync(organizationId, Direction.OUTGOING);
-                var combinedMessagesList = messageMergeService.MergeMessagesListsOut(elementsMessagesList, difiMessagesList);
+                var combinedMessagesList = await messageMergeService.MergeMessagesListsOutAsync(organizationId, elementsMessagesList, null);
+                return combinedMessagesList.ToList();
+            }
+        }
+
+        [HttpGet("sender/{senderId}", Name = "GetMessagesBySenderIdAsync")]
+        public async Task<ActionResult<IEnumerable<Message>>> GetMessagesBySenderIdAsync(string organizationId, string senderId, [FromServices] IMessageMergeService messageMergeService, [FromServices] IDifiMessageRepository difiMessageRepository, [FromServices] IElementsMessageRepository elementsMessageRepository, [FromServices] IMessagesService messagesService)
+        {
+            try
+            {
+                var difiMessagesList = await difiMessageRepository.GetMessagesBySenderIdAsync(organizationId, senderId);
+                difiMessagesList = messagesService.AddLatestStatus(difiMessagesList);
+                var elementsMessagesList = await elementsMessageRepository.GetElementsMessagesBySenderIdAsync(organizationId, senderId);
+                var combinedMessages = await messageMergeService.MergeMessagesListsInAsync(organizationId, difiMessagesList, elementsMessagesList);
+                if (combinedMessages.ToList().Count() == 0)
+                {
+                    return NotFound();
+                }
+                return combinedMessages.ToList();
+
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return this.StatusCode(400, ex.Message);
+            }
+        }
+
+        [HttpGet("receiver/{receiverId}", Name = "GetMessagesByReceiverIdAsync")]
+        public async Task<ActionResult<IEnumerable<Message>>> GetMessagesByReceiverIdAsync(string organizationId, string receiverId, [FromServices] IDifiMessageRepository difiMessageRepository, [FromServices] IMessageMergeService messageMergeService, [FromServices] IElementsMessageRepository elementsMessageRepository, [FromServices] IMessagesService messagesService)
+        {
+            try
+            {
+                var difiMessagesList = await difiMessageRepository.GetMessagesByReceiverIdAsync(organizationId, receiverId);
+                difiMessagesList = messagesService.AddLatestStatus(difiMessagesList);
+                var elementsMessagesList = await elementsMessageRepository.GetElementsMessagesByReceiverIdAsync(organizationId, receiverId);
+                var combinedMessagesList = await messageMergeService.MergeMessagesListsOutAsync(organizationId, elementsMessagesList, difiMessagesList);
                 if (combinedMessagesList.ToList().Count() == 0)
                 {
                     return NotFound();
@@ -93,7 +113,7 @@ namespace Brukerfeil.Enode.API.Controllers
             }
             catch (System.InvalidOperationException ex)
             {
-                return this.StatusCode(402, ex.Message);
+                return this.StatusCode(400, ex.Message);
             }
         }
 
@@ -105,7 +125,7 @@ namespace Brukerfeil.Enode.API.Controllers
                 var difiMessage = await difiMessageRepository.GetDifiMessageAsync(organizationId, msgId);
                 var elementsMessage = await elementsMessageRepository.GetElementsMessageAsync(organizationId, msgId);
                 var combinedMessage = messageMergeService.MergeMessages(difiMessage, elementsMessage);
-                if (combinedMessage == null)
+                if (difiMessage == null && elementsMessage == null || combinedMessage == null)
                 {
                     return NotFound();
                 }
@@ -113,9 +133,8 @@ namespace Brukerfeil.Enode.API.Controllers
             }
             catch (System.InvalidOperationException ex)
             {
-                return this.StatusCode(402, ex.Message);
+                return this.StatusCode(400, ex.Message);
             }
         }
     }
 }
-

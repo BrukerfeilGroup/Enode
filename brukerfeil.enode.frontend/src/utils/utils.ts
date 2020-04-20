@@ -3,12 +3,48 @@ import Message from '../types/Message'
 import { Status } from '../types/DifiMessage'
 import { AxiosResponse } from 'axios'
 import { Filters, CheckboxStructure } from '../components/containers/Filter'
+import { ElementsStatus } from '../types/ElementsMessage'
+
+export const elementsStatusChecker = (elementsStatus: ElementsStatus | undefined) => {
+    let elementsStyle = ''
+    switch (elementsStatus) {
+        case undefined:
+            elementsStyle = 'redStatus'
+            break
+        case 'Åpnet  av mottaker':
+            elementsStyle = 'greenStatus'
+            break
+        case 'Levert':
+            elementsStyle = 'greenStatus'
+            break
+        case 'Sendt':
+            elementsStyle = 'yellowStatus'
+            break
+        case 'Signert':
+            elementsStyle = 'yellowStatus'
+            break
+        case 'Klar for sending':
+            elementsStyle = 'yellowStatus'
+            break
+        case 'Mottatt elektronisk':
+            elementsStyle = 'yellowStatus'
+            break
+        case 'Under sending':
+            elementsStyle = 'yellowStatus'
+            break
+        case 'Overføring feilet':
+            elementsStyle = 'redStatus'
+            break
+        default:
+    }
+    return elementsStyle
+}
 
 //Switch case for determening the STATUS of a message
-export const statusChecker = (status: Status) => {
+export const difiStatusChecker = (status: Status | undefined) => {
     let style = ''
     switch (status) {
-        case null:
+        case undefined:
             style = 'greyStatus'
             break
         case 'OPPRETTET':
@@ -43,7 +79,7 @@ export const statusChecker = (status: Status) => {
             break
         default:
     }
-    return { style }
+    return style
 }
 
 //METHOD FOR SORTING TABLE ROW
@@ -94,6 +130,36 @@ export const httpResponseHandler = <T>(
         stateUpdater(response.data)
     } else if (response.status === 204) {
         stateUpdater([])
+    } else if (response.status === 400 || 500) {
+        errorUpdater(response.data as any)
+    } else {
+        throw new Error(
+            `\nStatus code: ${response.status}. \nStatus text: ${response.statusText}.`
+        )
+    }
+}
+
+/**
+ * Checks HTTP status codes and updates states accordingly
+ *
+ * @param response
+ * An AxiosResponse object
+ * @param stateUpdater
+ * The setState-function to update the relevant state
+ * @param errorUpdater
+ * The setState-function to update the error state
+ * @throws
+ * Exception message includes https status code and text
+ */
+export const httpObjectResponseHandler = <T>(
+    response: AxiosResponse<T>,
+    stateUpdater: React.Dispatch<React.SetStateAction<T | undefined>>,
+    errorUpdater: React.Dispatch<React.SetStateAction<string>>
+) => {
+    if (response.status === 200) {
+        stateUpdater(response.data)
+    } else if (response.status === 204) {
+        stateUpdater(Object)
     } else if (response.status === 400 || 500) {
         errorUpdater(response.data as any)
     } else {

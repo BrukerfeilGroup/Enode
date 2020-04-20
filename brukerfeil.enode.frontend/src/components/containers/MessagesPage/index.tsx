@@ -9,6 +9,7 @@ import { filterMessages, initialFilter, checkboxStructure } from '../../../utils
 import { MESSAGES_IN_ENDPOINT, MESSAGES_OUT_ENDPOINT } from '../../../constants'
 import HamburgerMenu from '../../HamburgerMenu'
 import FilterBox, { Filters, CheckboxStructure } from '../../containers/Filter'
+import LoadingIndicator from '../../common/LoadingIndicator'
 import styles from './styles.module.css'
 
 type MessagesPageRouteParams = {
@@ -24,9 +25,7 @@ const MessagesPage: React.FC<MessagesPageProps> = props => {
     const orgId = props.match.params.id
 
     const [inMessages, setInMessages] = useState<Message[]>([]) //State for incoming messages
-    const [outMessages, setOutMessages] = useState<Message[]>([]) //State for
-    const [searchMessage, setSearchMessage] = useState<Message>()
-    const [searchedMessage, setSearchedMessage] = useState<string>('')
+    const [outMessages, setOutMessages] = useState<Message[]>([]) //State for outgoing messages
     const [activeMessage, setActiveMessage] = useState<Message>() //State for a selected message
     const [filteredSenderOrg, setFilteredSenderOrg] = useState<string>('')
     const [filteredReceiverOrg, setFilteredReceiverOrg] = useState<string>('')
@@ -39,10 +38,15 @@ const MessagesPage: React.FC<MessagesPageProps> = props => {
     const {
         tempInMessages,
         tempOutMessages,
+        searchedMessage,
+        setSearchedMessage,
         isFetching,
         fetchBySenderId,
         fetchByReceiverId,
         fetchMessages,
+        fetchByMessageId,
+        error,
+        setError,
     } = useMessages(orgId)
 
     const handleClearIncomingMessages = () => {
@@ -71,26 +75,17 @@ const MessagesPage: React.FC<MessagesPageProps> = props => {
                 ? m.difiMessage.messageId === id
                 : m.elementsMessage.conversationId === id
         )
-
-        if (message) setActiveMessage(message)
+        if (message) {
+            setError('')
+            setActiveMessage(message)
+        }
     }
 
     const handleSearchMessageId = (messageId: string) => {
-        const message = [...inMessages, ...outMessages].find(m =>
-            m.difiMessage
-                ? m.difiMessage.messageId === messageId
-                : m.elementsMessage.conversationId === messageId
-        )
-
-        if (message) setSearchMessage(message)
-    }
-
-    const handleClearMessageId = () => {
-        setSearchedMessage('')
-    }
-
-    const handleCloseModal = () => {
-        setSearchMessage(undefined)
+        setError('')
+        setSearchedMessage(undefined)
+        fetchByMessageId(messageId)
+        setActiveMessage(searchedMessage)
     }
 
     const handleFilterChange = (filters: Filters) => {
@@ -102,6 +97,10 @@ const MessagesPage: React.FC<MessagesPageProps> = props => {
     const handleCheckboxChange = (checkboxStructure: CheckboxStructure) => {
         populatedCheckboxes(checkboxStructure)
     }
+
+    useEffect(() => {
+        setActiveMessage(searchedMessage)
+    }, [searchedMessage])
 
     useEffect(() => {
         setInMessages(tempInMessages)
@@ -122,14 +121,10 @@ const MessagesPage: React.FC<MessagesPageProps> = props => {
                 toggleHamburger={() => setIsHamburgerOpen(!isHamburgerOpen)}
                 toggleFilter={() => setIsFilterOpen(!isFilterOpen)}
                 onSearch={handleSearchMessageId}
-                onClear={handleClearMessageId}
-                onClose={handleCloseModal}
-                filteredOrgId={searchedMessage}
-                message={searchMessage}
             />
-            {isHamburgerOpen === true ? <HamburgerMenu org={orgId} /> : null}
+            {isHamburgerOpen && <HamburgerMenu org={orgId} />}
 
-            {isFilterOpen === true ? (
+            {isFilterOpen && (
                 <FilterBox
                     checkboxStructure={checkboxes}
                     onCheckboxChange={checkboxStructure =>
@@ -138,37 +133,40 @@ const MessagesPage: React.FC<MessagesPageProps> = props => {
                     initialFilter={filters}
                     onFilterChange={initialFilter => handleFilterChange(initialFilter)}
                 />
-            ) : null}
+            )}
+            {error && (
+                <div className={styles.error} onClick={() => setError('')}>
+                    {error}
+                </div>
+            )}
             <div className={styles.container}>
                 {isFetching ? (
-                    <pre>Loading..</pre>
+                    <LoadingIndicator size="LARGE" />
                 ) : (
                     <>
-                        <>
-                            <InOrOutbox
-                                direction="IN"
-                                messages={inMessages}
-                                filteredOrgId={filteredSenderOrg}
-                                onChangeActive={findMessage}
-                                onSearch={handleSearchIngoingMessages}
-                                onClearFilteredMessages={handleClearIncomingMessages}
-                            />
-                            <InOrOutbox
-                                direction="OUT"
-                                messages={outMessages}
-                                filteredOrgId={filteredReceiverOrg}
-                                onChangeActive={findMessage}
-                                onSearch={handleSearchOutgoingMessages}
-                                onClearFilteredMessages={handleClearOutgoingMessages}
-                            />
-                        </>
+                        <InOrOutbox
+                            direction="IN"
+                            messages={inMessages}
+                            filteredOrgId={filteredSenderOrg}
+                            onChangeActive={findMessage}
+                            onSearch={handleSearchIngoingMessages}
+                            onClearFilteredMessages={handleClearIncomingMessages}
+                        />
+                        <InOrOutbox
+                            direction="OUT"
+                            messages={outMessages}
+                            filteredOrgId={filteredReceiverOrg}
+                            onChangeActive={findMessage}
+                            onSearch={handleSearchOutgoingMessages}
+                            onClearFilteredMessages={handleClearOutgoingMessages}
+                        />
 
-                        {activeMessage ? (
+                        {!error && activeMessage && (
                             <MessageModal
                                 message={activeMessage}
                                 onCloseModal={() => setActiveMessage(undefined)}
                             />
-                        ) : null}
+                        )}
                     </>
                 )}
             </div>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { httpResponseHandler } from '../utils/utils'
+import { httpResponseHandler, httpObjectResponseHandler } from '../utils/utils'
 import Message from '../types/Message'
 import axios from 'axios'
+//import { outgoingMessage, incomingMessage } from '../utils/testData'
 import {
-    BACKEND_BASEURL,
+    getBackendBaseUri,
     MESSAGES_IN_ENDPOINT,
     MESSAGES_OUT_ENDPOINT,
 } from '../constants'
@@ -21,6 +22,7 @@ const headers = {
 export default (orgId: string) => {
     const [tempInMessages, setTempInMessages] = useState<Message[]>([])
     const [tempOutMessages, setTempOutMessages] = useState<Message[]>([])
+    const [searchedMessage, setSearchedMessage] = useState<Message | undefined>()
     const [isFetching, setIsFetching] = useState<boolean>(true)
     const [error, setError] = useState<string>('')
 
@@ -32,7 +34,7 @@ export default (orgId: string) => {
     const fetchBySenderId = async (id: string): Promise<void> => {
         setIsFetching(true)
         try {
-            const endpoint = `${BACKEND_BASEURL}/${orgId}/messages/sender/${id}`
+            const endpoint = `${getBackendBaseUri()}/${orgId}/messages/sender/${id}`
             const response = await axios.get<Message[]>(endpoint, headers)
             httpResponseHandler(response, setTempInMessages, setError)
         } catch (exception) {
@@ -50,9 +52,27 @@ export default (orgId: string) => {
     const fetchByReceiverId = async (id: string): Promise<void> => {
         setIsFetching(true)
         try {
-            const endpoint = `${BACKEND_BASEURL}/${orgId}/messages/receiver/${id}`
+            const endpoint = `${getBackendBaseUri()}/${orgId}/messages/receiver/${id}`
             const response = await axios.get<Message[]>(endpoint, headers)
             httpResponseHandler(response, setTempOutMessages, setError)
+        } catch (exception) {
+            console.log(`Error when fetching messages: ${exception}`)
+            setError(`Error when fetching messages: ${exception}`)
+        }
+        setIsFetching(false)
+    }
+
+    /**
+     * Fetches outgoing messages for the selected organization based on a specified recipient.
+     * @param {string} messageId
+     *  The recipient's organization id.
+     */
+    const fetchByMessageId = async (messageId: string): Promise<void> => {
+        setIsFetching(true)
+        try {
+            const endpoint = `${getBackendBaseUri()}/${orgId}/messages/${messageId}`
+            const response = await axios.get<Message>(endpoint, headers)
+            httpObjectResponseHandler(response, setSearchedMessage, setError)
         } catch (exception) {
             console.log(`Error when fetching messages: ${exception}`)
             setError(`Error when fetching messages: ${exception}`)
@@ -67,10 +87,21 @@ export default (orgId: string) => {
      *  The endpoint messages will be fetched from.
      */
     const fetchMessages = async (endpoint: string): Promise<void> => {
+        setIsFetching(true)
+        // const messages: Message[] = []
+
+        // for (let i = 0; i < 200; i++) {
+        //     messages.push(
+        //         endpoint === MESSAGES_IN_ENDPOINT ? incomingMessage : outgoingMessage
+        //     )
+        // }
+        // endpoint === MESSAGES_IN_ENDPOINT
+        //     ? setTempInMessages(messages)
+        //     : setTempOutMessages(messages)
         const tempUrl =
             endpoint === MESSAGES_IN_ENDPOINT
-                ? `${BACKEND_BASEURL}/${orgId}${MESSAGES_IN_ENDPOINT}`
-                : `${BACKEND_BASEURL}/${orgId}${MESSAGES_OUT_ENDPOINT}`
+                ? `${getBackendBaseUri()}/${orgId}${MESSAGES_IN_ENDPOINT}`
+                : `${getBackendBaseUri()}/${orgId}${MESSAGES_OUT_ENDPOINT}`
         try {
             const response = await axios.get<Message[]>(tempUrl, headers)
 
@@ -98,10 +129,14 @@ export default (orgId: string) => {
     return {
         tempInMessages,
         tempOutMessages,
+        searchedMessage,
         isFetching,
         error,
+        setError,
+        setSearchedMessage,
         fetchBySenderId,
         fetchByReceiverId,
+        fetchByMessageId,
         fetchMessages,
     }
 }

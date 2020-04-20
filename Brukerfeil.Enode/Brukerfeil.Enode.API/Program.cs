@@ -1,5 +1,3 @@
-using Brukerfeil.Enode.API.Configurations;
-using Brukerfeil.Enode.Common.Configurations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 

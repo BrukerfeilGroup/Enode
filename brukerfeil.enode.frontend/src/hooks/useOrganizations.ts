@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Organization from '../types/Organization'
 import { httpResponseHandler } from '../utils/utils'
-import { BACKEND_BASEURL, ORGANIZATION_ENDPOINT } from '../constants'
+import { getBackendBaseUri, ORGANIZATION_ENDPOINT } from '../constants'
 
 const headers = { 'Content-type': 'application/json' }
 
@@ -16,7 +16,7 @@ export default () => {
 
         try {
             const response = await axios.get<Organization[]>(
-                `${BACKEND_BASEURL}${ORGANIZATION_ENDPOINT}`,
+                `${getBackendBaseUri()}${ORGANIZATION_ENDPOINT}`,
                 {
                     headers,
                 }

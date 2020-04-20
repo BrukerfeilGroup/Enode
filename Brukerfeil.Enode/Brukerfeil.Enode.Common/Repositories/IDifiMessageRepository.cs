@@ -9,5 +9,7 @@ namespace Brukerfeil.Enode.Common.Repositories
     {
         Task<IEnumerable<DifiMessage>> GetDifiMessagesAsync(string organizationId, Direction direction);
         Task<DifiMessage> GetDifiMessageAsync(string organizationId, string msgId);
+        Task<IEnumerable<DifiMessage>> GetMessagesBySenderIdAsync(string organizationId, string senderId);
+        Task<IEnumerable<DifiMessage>> GetMessagesByReceiverIdAsync(string organizationId, string receiverId);
     }
 }

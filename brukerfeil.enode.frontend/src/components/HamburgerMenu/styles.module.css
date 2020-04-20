@@ -10,12 +10,13 @@
 .container {
     position: fixed;
     height: 100%;
-    width: 14%;
+    width: 300px;
     transition: ease-in 0.15s;
     animation-name: example;
     animation-duration: 0.3s;
     box-shadow: 1em 0.5em 3em 0 var(--background);
     background-color: var(--background);
+    z-index: 1;
 }
 
 .HamburgerModal {

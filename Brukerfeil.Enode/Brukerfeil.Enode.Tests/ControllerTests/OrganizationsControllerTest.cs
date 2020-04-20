@@ -1,92 +1,76 @@
 ﻿using Brukerfeil.Enode.API.Controllers;
 using Xunit;
 using Moq;
-using Brukerfeil.Enode.Common.Configurations;
 using System.Collections.Generic;
-using Brukerfeil.Enode.Schemas;
 using System.Linq;
+using Brukerfeil.Enode.Common.Services;
+using Brukerfeil.Enode.Common.Models;
 
-// namespace Brukerfeil.Enode.Test.OrganizationTests
-// {
+namespace Brukerfeil.Enode.Test.OrganizationsControllerTests
+{
 
-//     public class ConfigServiceTest
-//     {
-//         [Fact]
-//         public async void TestGetOrgConfigNotNullAsync()
-//         {
-//             //Arrange
-//             var mockConfigProvider = new Mock<IConfigProvider>();
-//             mockConfigProvider.Setup(configProvider =>
-//             configProvider.GetOrgConfigAsync("MASTER_ORA"))
-//                 .ReturnsAsync(GetOrganizationObject());
+    public class ConfigServiceTest
+    {
+        [Fact]
+        public async void TestGetOrgConfigNotNullAsync()
+        {
+            //Arrange
+            var mockConfigService = new Mock<IConfigService>();
+            mockConfigService.Setup(service => service.GetOrganizationsAsync()).ReturnsAsync(GetOrganizationObject());
 
-//             var configController = new OrganizationsController(mockConfigProvider.Object);
+            var orgController = new OrganizationsController();
 
-//             //Act
-//             var actual = await configController.GetOrgConfigAsync();
+            //Act
+            var actual = await orgController.GetOrgConfigAsync(mockConfigService.Object);
 
-//             //Assert
-//             mockConfigProvider.VerifyAll();
-//             Assert.NotNull(actual);
-//         }
+            //Assert
+            mockConfigService.VerifyAll();
+            Assert.NotNull(actual);
+        }
 
-//         [Fact]
-//         public async void TestGetOrgConfigTypeAsync()
-//         {
-//             //Arrange
-//             var mockConfigProvider = new Mock<IConfigProvider>();
-//             mockConfigProvider.Setup(configProvider =>
-//             configProvider.GetOrgConfigAsync("MASTER_ORA"))
-//                 .ReturnsAsync(GetOrganizationObject());
+        [Fact]
+        public async void TestGetOrgConfigTypeAsync()
+        {
+            //Arrange
+            var mockConfigService = new Mock<IConfigService>();
+            mockConfigService.Setup(service => service.GetOrganizationsAsync()).ReturnsAsync(GetOrganizationObject());
 
-//             var configController = new OrganizationsController(mockConfigProvider.Object);
+            var orgController = new OrganizationsController();
 
-//             //Act
-//             var actual = await configController.GetOrgConfigAsync();
+            //Act
+            var actual = await orgController.GetOrgConfigAsync(mockConfigService.Object);
 
-//             //Assert
-//             Assert.IsType<List<OrganizationSchema>>(actual);
+            //Assert
+            Assert.IsType<List<Organization>>(actual);
 
-//         }
+        }
 
-//         [Fact]
-//         public async void TestOrgNameAndOrgIdAsync()
-//         {
-//             //Arrange
-//             var mockConfigProvider = new Mock<IConfigProvider>();
-//             mockConfigProvider.Setup(configProvider =>
-//             configProvider.GetOrgConfigAsync("MASTER_ORA"))
-//                 .ReturnsAsync(GetOrganizationObject());
+        [Fact]
+        public async void TestOrgNameAndOrgIdAsync()
+        {
+            //Arrange
+            var mockConfigService = new Mock<IConfigService>();
+            mockConfigService.Setup(service => service.GetOrganizationsAsync()).ReturnsAsync(GetOrganizationObject());
 
-//             var configController = new OrganizationsController(mockConfigProvider.Object);
-//             var expected = new List<OrganizationSchema>
-//             {
-//                 new OrganizationSchema
-//                 {
-//                     OrganizationName = "Gecko Eiendom AS",
-//                     OrganizationId = 1,
-//                 }
-//             };
+            var orgController = new OrganizationsController();
+            var expected = GetOrganizationObject();
 
-//             //Act
-//             var actual = await configController.GetOrgConfigAsync();
+            //Act
+            var actual = await orgController.GetOrgConfigAsync(mockConfigService.Object);
 
-//             //Assert
-//             Assert.True(actual.ToList()[0].OrganizationName == expected[0].OrganizationName
-//                 && actual.ToList()[0].OrganizationId == expected[0].OrganizationId);
+            //Assert
+            Assert.True(actual.ToList().ElementAt(0).OrgId == expected.ElementAt(0).OrgId &&
+                actual.ToList().ElementAt(0).OrgName == expected.ElementAt(0).OrgName);
 
-//         }
+        }
 
-//         private OrganizationSchema GetOrganizationObject()
-//         {
+        private List<Organization> GetOrganizationObject()
+        {
 
-//             var organization = new OrganizationSchema
-//             {
-//                 OrganizationName = "Gecko Eiendom AS",
-//                 OrganizationId = 1,
-//             };
-
-//             return organization;
-//         }
-//     }
-// }
+            var organizations = new List<Organization> 
+            { new Organization(989778471, "Gecko Eiendom AS"),
+              new Organization(922308055, "Sikri AS") };
+            return organizations;
+        }
+    }
+}

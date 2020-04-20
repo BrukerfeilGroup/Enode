@@ -12,6 +12,7 @@
     border-color: white;
     flex-wrap: inherit;
     list-style: none;
+    z-index: 1;
 }
 
 .content {

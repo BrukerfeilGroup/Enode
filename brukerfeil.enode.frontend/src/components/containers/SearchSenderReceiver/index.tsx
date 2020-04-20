@@ -3,10 +3,11 @@ import { useState } from 'react'
 import { FaSearch, FaTimes } from 'react-icons/fa'
 import styles from './styles.module.css'
 
-type SearchSenderReceiver = {
+type SearchSenderReceiverProps = {
     placeholder: string
     onSearch: (id: string) => void
     onClear: () => void
+    onChange?: (input: string) => void
     filteredOrgId?: string //The organization id which a user has filtered on. Used to validate if a user should be allowed to clear the search
     styling?: StylesType //Used to override the styles. The overridden styling object must have the same classes which this components' css has
 }
@@ -15,7 +16,7 @@ type StylesType = {
     readonly [key: string]: string
 }
 
-const SearchSenderReceiver: React.FC<SearchSenderReceiver> = ({
+const SearchSenderReceiver: React.FC<SearchSenderReceiverProps> = ({
     styling = styles,
     ...props
 }) => {
@@ -36,6 +37,11 @@ const SearchSenderReceiver: React.FC<SearchSenderReceiver> = ({
         }
     }
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (props.onChange) props.onChange(e.target.value)
+        setSenderRecipientId(e.target.value)
+    }
+
     const handleClear = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault()
         //Ensures the user has already searched before clearing the search. This will avoid spamming the clear button
@@ -47,7 +53,7 @@ const SearchSenderReceiver: React.FC<SearchSenderReceiver> = ({
 
     useEffect(() => {
         if (props.filteredOrgId) setSenderRecipientId(props.filteredOrgId)
-    }, [props.filteredOrgId])
+    }, [props])
 
     return (
         <div className={styles.searchContainer}>
@@ -58,7 +64,7 @@ const SearchSenderReceiver: React.FC<SearchSenderReceiver> = ({
                         //type="number"
                         //maxLength={11} //Max 11 so personalnr(11 digits) and orgnr(9digits) can be inserted
                         value={senderRecipientId}
-                        onChange={e => setSenderRecipientId(e.target.value)}
+                        onChange={handleChange}
                         placeholder={props.placeholder}
                     />
                     <button className={styling.confirmButton}>
