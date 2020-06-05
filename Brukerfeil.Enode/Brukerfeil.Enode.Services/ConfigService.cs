@@ -3,6 +3,7 @@ using Brukerfeil.Enode.Common.Models;
 using Brukerfeil.Enode.Common.Services;
 using Brukerfeil.Enode.Schemas;
 using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +26,8 @@ namespace Brukerfeil.Enode.Services
             var orgs = await GetCachedOrganizationsAsync();
             var id = int.Parse(orgId);
             return orgs.ToList().FirstOrDefault(o => o.OrganizationId.Equals(id));
-        }
+
+        }  
 
         private async Task<IEnumerable<OrganizationSchema>> GetCachedOrganizationsAsync()
         {
@@ -35,7 +37,7 @@ namespace Brukerfeil.Enode.Services
 
                 return new List<OrganizationSchema> { gecko, sikri };
             });
-        }
+        } 
 
         public async Task<IEnumerable<Organization>> GetOrganizationsAsync()
         {

@@ -33,7 +33,7 @@ const OrganizationList: React.FC = () => {
                 {organizations.map(renderorganizationList)}
             </select>
             <div>
-                <Link to={selectedOrg} onClick={e => handleClick(e)}>
+                <Link to={`enode-frontend/${selectedOrg}`} onClick={e => handleClick(e)}>
                     <button className={styles.button}>Bekreft</button>
                 </Link>
             </div>

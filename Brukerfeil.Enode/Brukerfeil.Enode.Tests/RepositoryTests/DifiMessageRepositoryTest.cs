@@ -13,6 +13,7 @@ using System.Linq;
 using Brukerfeil.Enode.Common.Services;
 using Brukerfeil.Enode.Common.Enums;
 using Brukerfeil.Enode.Schemas;
+using Brukerfeil.Enode.Services;
 
 namespace Brukerfeil.Enode.Tests.RepositoryTests
 {
@@ -54,13 +55,46 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             return configList.Single(org => org.OrganizationId.Equals(Int32.Parse(orgId)));
         }
 
-        private IEnumerable<DifiMessage> GetDifiMessageListStub()
+        private IEnumerable<DifiMessage> GetDifiMessageListWithStatusStub()
         {
             var difiMessages = new List<DifiMessage>
             {
                 new DifiMessage
                 {
                     id = 178,
+                    messageTitle = "Title 1",
+                    expiry = DateTime.Now,
+                    conversationId = "wrongConvId",
+                    messageId = "wrongMsgId",
+                    senderIdentifier = "989778471",
+                    receiverIdentifier = "922308055",
+                    lastUpdate = DateTime.Now,
+                    direction = "INCOMING",
+                    serviceIdentifier = "DPO",
+                    latestMessageStatus = "Status 1.2",
+                    created = DateTime.Now,
+                    messageStatuses = new List<MessageStatuses>
+                    {
+                        new MessageStatuses
+                        {
+                            id = 7700,
+                            lastUpdate = DateTime.Parse("2020-04-22T13:34:44.645+02:00"),
+                            status = "OPPRETTET"
+                        },
+                        new MessageStatuses
+                        {
+                            id = 7702,
+                            lastUpdate = DateTime.Parse("2020-04-22T13:34:44.848+02:00"),
+                            status = "SENDT"
+                        }
+                    }
+                },
+                //Used by GetMessageRepositorySingle method
+                new DifiMessage
+                {
+                    id = 179,
+                    messageTitle = "Title 2",
+                    expiry = DateTime.Now,
                     conversationId = "aaed7220-2a0d-45a6-a2a4-3b24a069e08b",
                     messageId = "aaed7220-2a0d-45a6-a2a4-3b24a069e08b",
                     senderIdentifier = "989778471",
@@ -68,26 +102,29 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
                     lastUpdate = DateTime.Now,
                     direction = "INCOMING",
                     serviceIdentifier = "DPO",
-                    latestMessageStatus = null,
+                    latestMessageStatus = "Status 2.2",
                     created = DateTime.Now,
-                },
-                new DifiMessage
-                {
-                    id = 179,
-                    conversationId = "wrong Id",
-                    messageId = "wrong Id",
-                    senderIdentifier = "989778471",
-                    receiverIdentifier = "922308055",
-                    lastUpdate = DateTime.Now,
-                    direction = "INCOMING",
-                    serviceIdentifier = "DPO",
-                    latestMessageStatus = null,
-                    created = DateTime.Now,
+                    messageStatuses = new List<MessageStatuses>
+                    {
+                        new MessageStatuses
+                        {
+                            id = 7700,
+                            lastUpdate = DateTime.Parse("2020-04-22T13:34:44.645+02:00"),
+                            status = "OPPRETTET"
+                        },
+                        new MessageStatuses
+                        {
+                            id = 7702,
+                            lastUpdate = DateTime.Parse("2020-04-22T13:34:44.848+02:00"),
+                            status = "SENDT"
+                        }
+                    }
                 }
             };
 
             return difiMessages;
         }
+        
 
         ///////////////////////////////////////////////
         ///   METHODS TO GET OBJECTS TO TEST WITH   ///   
@@ -103,8 +140,10 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
                 .ReturnsAsync(new HttpResponseMessage()
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent("{\"content\": [{\"messageId\": \"aaed7220-2a0d-45a6-a2a4-3b24a069e08b\"," +
-                    "\"senderIdentifier\": \"989778471\", \"receiverIdentifier\": \"922308055\"}]}")
+                    Content = new StringContent("{\"content\": [{\"messageId\": \"aaed7220-2a0d-45a6-a2a4-3b24a069e08b\", \"senderIdentifier\": \"989778471\", \"receiverIdentifier\": \"922308055\", \"messageStatuses\": " +
+                    "[{\"id\": 7700,\"lastUpdate\": \"2020-04-22T13:34:44.645+02:00\",\"status\": \"OPPRETTET\"}, " +
+                    "{\"id\": 7702, \"lastUpdate\": \"2020-04-22T13:34:44.848+02:00\",\"status\": \"SENDT\"}]}" +
+                    "]}")
                 })
                 .Verifiable();
 
@@ -116,7 +155,44 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             {
                 BaseAddress = new Uri(baseURI)
             };
-            var messageRepository = new DifiMessageRepository(httpClient, mockConfigService.Object);
+
+            var mockMessagesService = new Mock<IMessagesService>();
+            mockMessagesService.Setup(service => service.AddLatestStatusOnList(It.IsAny<IEnumerable<DifiMessage>>())).Returns(GetDifiMessageListWithStatusStub());
+
+            var messageRepository = new DifiMessageRepository(httpClient, mockConfigService.Object, mockMessagesService.Object);
+            return messageRepository;
+        }
+        
+        public DifiMessageRepository GetMessageRepositorySingle(string orgId)
+        {
+            //Arrange
+            var mockMessageHandler = new Mock<HttpMessageHandler>();
+            mockMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage()
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent("{\"content\": [{\"messageId\": \"aaed7220-2a0d-45a6-a2a4-3b24a069e08b\", \"senderIdentifier\": \"989778471\", \"receiverIdentifier\": \"922308055\", \"messageStatuses\": " +
+                    "[{\"id\": 7700,\"lastUpdate\": \"2020-04-22T13:34:44.645+02:00\",\"status\": \"OPPRETTET\"}, " +
+                    "{\"id\": 7702, \"lastUpdate\": \"2020-04-22T13:34:44.848+02:00\",\"status\": \"SENDT\"}]}" +
+                    "]}")
+                })
+                .Verifiable();
+
+            var mockConfigService = new Mock<IConfigService>();
+            mockConfigService.Setup(service => service.GetConfigAsync(orgId)).ReturnsAsync(GetConfigStub(orgId));
+
+            var baseURI = GetConfigStub(orgId).IntegrationPoint;
+            var httpClient = new HttpClient(mockMessageHandler.Object)
+            {
+                BaseAddress = new Uri(baseURI)
+            };
+
+            var mockMessagesService = new Mock<IMessagesService>();
+            mockMessagesService.Setup(service => service.AddLatestStatusOnSingle(It.IsAny<DifiMessage>())).Returns(GetDifiMessageListWithStatusStub().ElementAt(1));
+
+            var messageRepository = new DifiMessageRepository(httpClient, mockConfigService.Object, mockMessagesService.Object);
             return messageRepository;
         }
 
@@ -124,7 +200,6 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
         //////////////////////
         ///   UNIT TESTS   ///   
         //////////////////////
-
 
         //Method GetDifiMessagesAsync()
         [Fact]
@@ -139,7 +214,7 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
         {
             var messageRepository = GetMessageRepository("922308055");
             var actual = await messageRepository.GetDifiMessagesAsync("922308055", Direction.INCOMING);
-            Assert.NotNull(actual.ToList()[0]);
+            Assert.NotNull(actual.ToList().ElementAt(0));
         }
         [Fact]
         public async void TestGetDifiMessagesTypeAsync()
@@ -148,30 +223,51 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetDifiMessagesAsync("922308055", Direction.INCOMING);
             Assert.IsType<List<DifiMessage>>(actual);
         }
+        [Fact]
+        public async void TestGetDifiMessagesFieldCheckAsync()
+        {
+            var messageRepository = GetMessageRepository("922308055");
+            var actual = await messageRepository.GetDifiMessagesAsync("922308055", Direction.INCOMING);
+            Assert.True(
+                GetDifiMessageListWithStatusStub().ToList().ElementAt(0).conversationId ==      actual.ToList().ElementAt(0).conversationId &&
+                GetDifiMessageListWithStatusStub().ToList().ElementAt(0).messageTitle ==        actual.ToList().ElementAt(0).messageTitle &&
+                GetDifiMessageListWithStatusStub().ToList().ElementAt(0).latestMessageStatus == actual.ToList().ElementAt(0).latestMessageStatus);
+        }
+        [Fact]
+        public async void TestGetDifiMessagesFieldCheck2Async()
+        {
+            var messageRepository = GetMessageRepository("922308055");
+            var actual = await messageRepository.GetDifiMessagesAsync("922308055", Direction.INCOMING);
+            Assert.True(
+                GetDifiMessageListWithStatusStub().ToList().ElementAt(1).conversationId ==      actual.ToList().ElementAt(1).conversationId &&
+                GetDifiMessageListWithStatusStub().ToList().ElementAt(1).messageTitle ==        actual.ToList().ElementAt(1).messageTitle &&
+                GetDifiMessageListWithStatusStub().ToList().ElementAt(1).latestMessageStatus == actual.ToList().ElementAt(1).latestMessageStatus);
+        }
 
 
         //Method GetDifiMessageAsync()
         [Fact]
         public async void TestGetDifiMessageNotNullAsync()
         {
-            var messageRepository = GetMessageRepository("922308055");
+            var messageRepository = GetMessageRepositorySingle("922308055");
             var actual = await messageRepository.GetDifiMessageAsync("922308055", "aaed7220-2a0d-45a6-a2a4-3b24a069e08b");
             Assert.NotNull(actual);
         }
         [Fact]
         public async void TestGetDifiMessageHasIdAsync()
         {
-            var messageRepository = GetMessageRepository("922308055");
+            var messageRepository = GetMessageRepositorySingle("922308055");
             var actual = await messageRepository.GetDifiMessageAsync("922308055", "aaed7220-2a0d-45a6-a2a4-3b24a069e08b");
             Assert.NotNull(actual.messageId);
         }
         [Fact]
         public async void TestGetDifiMessageCorrectIdAsync()
         {
-            var messageRepository = GetMessageRepository("922308055");
+            var messageRepository = GetMessageRepositorySingle("922308055");
             var actual = await messageRepository.GetDifiMessageAsync("922308055", "aaed7220-2a0d-45a6-a2a4-3b24a069e08b");
-            Assert.Equal("aaed7220-2a0d-45a6-a2a4-3b24a069e08b", actual.messageId);
+            Assert.Equal(GetDifiMessageListWithStatusStub().ToList().ElementAt(1).messageId, actual.messageId);
         }
+
 
         //Method GetMessagesBySenderIdAsync()
         [Fact]
@@ -181,7 +277,6 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetMessagesBySenderIdAsync("989778471", "922308055");
             Assert.NotNull(actual);
         }
-
         [Fact]
         public async void TestGetMessagesBySenderIdAsyncType()
         {
@@ -189,15 +284,15 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetMessagesBySenderIdAsync("989778471", "922308055");
             Assert.IsType<DifiMessage>(actual.ToList().ElementAt(0));
         }
-
         [Fact]
         public async void TestGetMessagesBySenderIdAsyncCorrectSenderId()
         {
             var messageRepository = GetMessageRepository("989778471");
-            var expected = GetDifiMessageListStub();
+            var expected = GetDifiMessageListWithStatusStub();
             var actual = await messageRepository.GetMessagesBySenderIdAsync("989778471", "922308055");
             Assert.Equal(actual.ToList().ElementAt(0).senderIdentifier, expected.ToList().ElementAt(0).senderIdentifier);
         }
+
 
         //Method GetMessagesByReceiverIdAsync()
         [Fact]
@@ -207,7 +302,6 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetMessagesByReceiverIdAsync("922308055", "989778471");
             Assert.NotNull(actual);
         }
-
         [Fact]
         public async void TestGetMessagesByReceiverIdAsyncType()
         {
@@ -215,12 +309,11 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetMessagesByReceiverIdAsync("922308055", "989778471");
             Assert.IsType<DifiMessage>(actual.ToList().ElementAt(0));
         }
-
         [Fact]
         public async void TestGetMessagesByReceiverIdAsyncCorrectReceiverId()
         {
             var messageRepository = GetMessageRepository("922308055");
-            var expected = GetDifiMessageListStub();
+            var expected = GetDifiMessageListWithStatusStub();
             var actual = await messageRepository.GetMessagesByReceiverIdAsync("922308055", "989778471");
             Assert.Equal(actual.ToList().ElementAt(0).receiverIdentifier, expected.ToList().ElementAt(0).receiverIdentifier);
         }

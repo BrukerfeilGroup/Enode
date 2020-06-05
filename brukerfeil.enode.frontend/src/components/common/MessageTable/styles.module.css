@@ -1,21 +1,21 @@
-@media only screen and (max-width: 1920px) {
+@media only screen and (max-width: 3299px) {
     .tableContainer {
+        background-color: #ebebeb;
         border-collapse: collapse;
-        width: 70rem;
+        width: 71rem;
         margin-top: 2rem;
         height: 90%;
         overflow: auto;
-        border-top-left-radius: 10px;
-        border-bottom-left-radius: 10px;
-        border-bottom-right-radius: 10px;
+
         transition: background-color 0.5s;
         -webkit-transition: background-color 0.5s;
         -o-transition: background-color 0.5s;
         -moz-transition: background-color 0.5s;
+        z-index: 0;
     }
 }
 
-@media only screen and (min-width: 2200px) {
+@media only screen and (min-width: 3300px) {
     .tableContainer {
         background-color: #ebebeb;
         border-collapse: collapse;
@@ -23,12 +23,16 @@
         margin-top: 2rem;
         height: 90%;
         overflow: auto;
-        border-top-left-radius: 10px;
         transition: background-color 0.5s;
         -webkit-transition: background-color 0.5s;
         -o-transition: background-color 0.5s;
         -moz-transition: background-color 0.5s;
+        z-index: 0;
     }
+}
+
+.noScroll {
+    overflow: hidden;
 }
 
 .titleContainer {
@@ -36,15 +40,13 @@
     align-items: center;
     padding: 0.5em;
     background: var(--background);
-    border-top-left-radius: 10px;
     position: sticky;
     top: 0;
-    z-index: 3;
+    z-index: 0;
 }
 
 .title {
     font-size: 2em;
-    /* text-shadow: 0.05em 0.05em #d8cccc; */
     padding: 0.2rem;
     margin: 0;
     color: var(--standard);
@@ -73,17 +75,32 @@
 }
 
 .tableHeader th {
-    top: 50px;
+    top: 49px;
     font-size: 1.4em;
-    background: var(--highlight);
+    padding-bottom: 4px;
+    background: #c1e4f7;
     position: sticky;
-    z-index: 3;
+    z-index: 0;
+    white-space: nowrap;
+}
+
+.tableHeader th:hover {
+    cursor: pointer;
+    background: #ceebfa;
 }
 
 .table tbody th,
 td {
-    padding: 8px 0;
+    height: 20px;
+    width: 50px;
+    padding: 8px;
     border-right: 0.2rem solid var(--shades);
+}
+
+.loadingTbody th,
+.loadingTbody td {
+    padding: 8px 0;
+    border-right: none;
 }
 
 .table tbody th:last-child,
@@ -99,13 +116,16 @@ td {
     background-color: #ffffff;
 }
 
+.tableLoadingHeader {
+    min-height: 52px;
+}
+
 .table tbody tr:hover td {
     background-color: var(--highlight);
     cursor: pointer;
 }
 
 .table tbody td {
-    padding: 8px;
     text-align: center;
     font-size: small;
 }

@@ -39,7 +39,6 @@ namespace Brukerfeil.Enode.API
             });
 
             services.AddSingleton(ConfigProvider.Instance);
-            services.AddTransient<ISortingService, SortingService>();
             services.AddTransient<IMessagesService, MessagesService>();
             services.AddTransient<IConfigService, ConfigService>();
             services.AddHttpClient<IElementsMessageRepository, ElementsMessageRepository>();

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using Brukerfeil.Enode.Common.Services;
 using System.Linq;
-using Brukerfeil.Enode.Common.Enums;
 using Brukerfeil.Enode.Common.Repositories;
 using System.Threading.Tasks;
 
@@ -20,7 +19,6 @@ namespace Brukerfeil.Enode.Services
             _difiMessageRepository = difiRep;
         }
 
-
         //Takes a single difi and elements message object and returns them in a single message object 
         public Message MergeMessages(DifiMessage difiMessages, ElementsMessage elementsMessages)
         {
@@ -29,11 +27,6 @@ namespace Brukerfeil.Enode.Services
                 DifiMessage = difiMessages,
                 ElementsMessage = elementsMessages
             };
-            //Same code typed more explicitly, kept for learning purposes
-            //var finalMsg = new Message();
-            //finalMsg.DifiMessage = difiMessage;
-            //finalMsg.ElementsMessage = elementsMessage;
-            //return finalMsg;
         }
 
         //Merging based on Difi, should be used to merge incoming messages
@@ -74,22 +67,17 @@ namespace Brukerfeil.Enode.Services
                     //Append the merged message to the list of merged messages to be returned
                     listOfMessages.Add(message);
                 }
-                catch (ArgumentNullException ex)
-                {
-                    Console.WriteLine(ex + " Error caught and thrown in Class(MessageMergeService), method(MergeMessagesList)");
-                    Console.WriteLine("Detailed info: ");
-                    Console.WriteLine("Difimessage " + dmsg.messageId + " does not have a match in the provided Elements message list");
-                }
                 //This is triggered when there is no elements match, the difimessage is merged with the result from the repository and added to the list.
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException)
                 {
-                    Console.WriteLine(ex + " Custom: Error caught in Class(MessageMergeService), method(MergeMessagesList)");
-                    Console.WriteLine("This error is caught every time a Difi message does not match an Elements message.");
-
                     //Specific matching when missing in other message-list
                     var elemMessage = await _elementsMessageRepository.GetElementsMessageAsync(organizationId, dmsg.messageId);
                     var message = MergeMessages(dmsg, elemMessage);
                     listOfMessages.Add(message);
+                }
+                catch (Exception)
+                {
+                    throw;
                 }
             }
             return listOfMessages;
@@ -124,21 +112,17 @@ namespace Brukerfeil.Enode.Services
                     //Append the merged message to the list of merged messages to be returned
                     listOfMessages.Add(message);
                 }
-                catch (ArgumentNullException ex)
-                {
-                    Console.WriteLine(ex + " Custom: Error caught and thrown in Class(MessageMergeService), method(MergeMessagesList)");
-                    throw;
-                }
                 //This is triggered when there is no difi match, the elementsmessage is merged with the result from the repository and added to the list.
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException)
                 {
-                    Console.WriteLine(ex + " Custom: Error caught in Class(MessageMergeService), method(MergeMessagesList)");
-                    Console.WriteLine("This error is caught every time an Elements message does not match a Difi message.");
-
                     //Specific matching when missing in other message-list
                     var difiMsg = await _difiMessageRepository.GetDifiMessageAsync(organizationId, emsg.ConversationId);
                     var message = MergeMessages(difiMsg, emsg);
                     listOfMessages.Add(message);
+                }
+                catch (Exception)
+                {
+                    throw;
                 }
             }
             return listOfMessages;

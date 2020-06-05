@@ -1,3 +1,11 @@
+@keyframes messageModalFade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
 .background {
     position: fixed;
     width: 100%;
@@ -8,44 +16,68 @@
     bottom: 0;
     margin: 0%;
     background-color: rgba(0, 0, 0, 0.5);
+    z-index: 5;
 }
 
 .container {
     position: absolute;
     height: fit-content;
-    width: 70em;
-
+    width: fit-content;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
     margin: auto;
+    animation-name: messageModalFade;
+    animation-duration: 0.3s;
     border-radius: 0.5em;
     background-color: white;
+    z-index: 6;
 }
 
 .header {
-    margin-left: 1.5em;
+    margin-left: 37px;
     margin-bottom: 0;
     font-weight: bold;
     color: var(--secondary);
 }
 
-.exit {
-    float: right;
-    cursor: pointer;
-    width: 2em;
-    border-width: 0px;
-    transition: color 0.3s;
-    font-size: 1.4em;
-    font-weight: bolder;
-    color: black;
-    border-radius: 0.5em;
-    background-color: white;
+.messageId {
+    margin-left: 30px;
+    margin-bottom: 0;
+    font-size: medium;
 }
 
+.exit {
+    position: absolute;
+    right: 4px;
+    top: 8px;
+    width: 32px;
+    height: 25px;
+    opacity: 0.5;
+    border: white;
+    background-color: white;
+    cursor: pointer;
+}
 .exit:hover {
-    color: red;
+    opacity: 1;
+    transition-duration: 0.2s;
+}
+.exit:before,
+.exit:after {
+    position: absolute;
+    left: 15px;
+    top: 0px;
+    content: ' ';
+    height: 23px;
+    width: 3px;
+    background-color: #333;
+}
+.exit:before {
+    transform: rotate(45deg);
+}
+.exit:after {
+    transform: rotate(-45deg);
 }
 
 .messageId {
@@ -55,47 +87,77 @@
 .content {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
 }
 
 .table {
-    max-width: 35rem;
-    min-width: 35rem;
     margin: 2em 0;
-    border: 0.1em solid black;
+    margin-left: 35px;
+    margin-right: 35px;
+    border-spacing: 0;
 }
 
 .tableHeader {
+    text-align: left;
+    border: 0;
+    margin-left: 3px;
+    margin-bottom: 3px;
     font-size: 1.5em;
     color: var(--secondary);
-    border: 0;
-    text-align: left;
+}
+
+.table tbody {
+    display: block;
+    overflow: auto;
+    height: 100%;
+    max-height: 311px;
+    min-height: 311px;
 }
 
 .table tr {
     font-size: 1.2em;
-    border: 0.1em solid black;
 }
 
 .table th {
     padding: 0.7em;
     text-align: center;
+    border-bottom: 0.1px solid white;
+    border-top: 0.1px solid white;
     width: 15%;
-    border: 0.1em solid black;
+}
+
+.table th {
+    background-color: var(--highlight);
 }
 
 .table td {
     padding: 0.7em;
     text-align: left;
-    border: 0.1em solid black;
+    border-left: 0;
 }
 
+.table tr:nth-child(odd) {
+    background-color: #eeeeee;
+}
+
+.table tr:nth-child(even) {
+    background-color: var(--standard);
+}
+
+.timeLineContainer {
+    overflow: auto;
+    max-height: 311px;
+    min-height: 311px;
+    max-width: 233px;
+    min-width: 233px;
+    margin-top: 50px;
+    margin-right: 30px;
+}
 .timeLine {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     list-style: none;
     padding-inline-start: 0;
-    margin-top: 2.5em;
+    margin-left: 40px;
 }
 
 .firstTimeLineItem {
@@ -150,12 +212,20 @@
     content: '';
     border-left: 0.2em solid var(--shades);
     position: absolute;
-    top: -5em;
+    top: -3em;
     bottom: 1em;
     left: 0;
     transform: translateX(-0.1em);
     margin: 0 0;
     z-index: 10;
+}
+
+.timeLine li {
+    margin-bottom: 30px;
+}
+
+.timeLine li:first-child {
+    margin-bottom: 0px;
 }
 
 .lastUpdated {

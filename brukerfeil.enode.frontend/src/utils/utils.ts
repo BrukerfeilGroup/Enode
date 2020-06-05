@@ -4,6 +4,12 @@ import { Status } from '../types/DifiMessage'
 import { AxiosResponse } from 'axios'
 import { Filters, CheckboxStructure } from '../components/containers/Filter'
 import { ElementsStatus } from '../types/ElementsMessage'
+import {
+    DifiSortingState,
+    DifiMessageKeys,
+    ElementsSortingState,
+    ElementsMessageKeys,
+} from '../types/SortingTypes'
 
 export const elementsStatusChecker = (elementsStatus: ElementsStatus | undefined) => {
     let elementsStyle = ''
@@ -153,7 +159,7 @@ export const httpResponseHandler = <T>(
  */
 export const httpObjectResponseHandler = <T>(
     response: AxiosResponse<T>,
-    stateUpdater: React.Dispatch<React.SetStateAction<T | undefined>>,
+    stateUpdater: React.Dispatch<React.SetStateAction<T | null>>,
     errorUpdater: React.Dispatch<React.SetStateAction<string>>
 ) => {
     if (response.status === 200) {
@@ -184,11 +190,27 @@ export const filterMessages = (messages: Message[], filters: Filters): Message[]
             expectedSum =
                 filters[cat] && filters[cat].length > 0 ? expectedSum + 1 : expectedSum
             filters[cat].forEach(value => {
-                const propertyToBeFilteredOn =
-                    cat === 'latestMessageStatus'
-                        ? m.difiMessage.latestMessageStatus
-                        : m.difiMessage.serviceIdentifier
-
+                let propertyToBeFilteredOn = null
+                if (!m.elementsMessage) {
+                    propertyToBeFilteredOn =
+                        cat === 'latestMessageStatus'
+                            ? m.difiMessage.latestMessageStatus
+                            : null
+                }
+                if (!m.difiMessage) {
+                    propertyToBeFilteredOn =
+                        cat === 'sendingStatus'
+                            ? m.elementsMessage.sendingStatus?.description
+                            : null
+                }
+                if (m.difiMessage && m.elementsMessage) {
+                    propertyToBeFilteredOn =
+                        cat === 'latestMessageStatus'
+                            ? m.difiMessage.latestMessageStatus
+                            : cat === 'sendingStatus'
+                            ? m.elementsMessage.sendingStatus?.description
+                            : null
+                }
                 if (propertyToBeFilteredOn === value) {
                     actualSum += 1
                 }
@@ -196,6 +218,15 @@ export const filterMessages = (messages: Message[], filters: Filters): Message[]
         })
         return expectedSum === actualSum
     })
+}
+/**
+ * Generate a random number in a range
+ *
+ * @param min random number from
+ * @param max random number to
+ */
+export const randomNumber = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
 export const checkboxStructure: CheckboxStructure = {
@@ -211,16 +242,56 @@ export const checkboxStructure: CheckboxStructure = {
         { name: 'FEIL', toggled: false },
         { name: 'LEVETID_UTLOPT', toggled: false },
     ],
-    serviceIdentifier: [
-        { name: 'DPO', toggled: false },
-        { name: 'DPV', toggled: false },
-        { name: 'DPI', toggled: false },
-        { name: 'DPF', toggled: false },
-        { name: 'DPE', toggled: false },
+    sendingStatus: [
+        { name: 'Åpnet  av mottaker', toggled: false },
+        { name: 'Levert', toggled: false },
+        { name: 'Sendt', toggled: false },
+        { name: 'Signert', toggled: false },
+        { name: 'Klar for sending', toggled: false },
+        { name: 'Mottatt elektronisk', toggled: false },
+        { name: 'Under sending', toggled: false },
+        { name: 'Overføring feilet', toggled: false },
     ],
 }
 
 export const initialFilter: Filters = {
     latestMessageStatus: [],
-    serviceIdentifier: [],
+    sendingStatus: [],
+}
+
+export const getUpdatedDifiSortingState = (
+    initialState: DifiSortingState,
+    currentState: DifiSortingState,
+    column: DifiMessageKeys
+): DifiSortingState => {
+    return {
+        ...initialState,
+        [column]:
+            currentState[column] === 'unsorted' || currentState[column] === 'descending'
+                ? 'ascending'
+                : 'descending',
+    }
+}
+
+export const getUpdatedElementsSortingState = (
+    initialState: ElementsSortingState,
+    currentState: ElementsSortingState,
+    column: ElementsMessageKeys
+): ElementsSortingState => {
+    return {
+        ...initialState,
+        [column]:
+            currentState[column] === 'unsorted' || currentState[column] === 'descending'
+                ? 'ascending'
+                : 'descending',
+    }
+}
+
+export const capitalisation = (name: string) => {
+    let capLetter = name.charAt(0).toUpperCase()
+    let lowLetters = name
+        .slice(1)
+        .toLowerCase()
+        .replace('_', ' ')
+    return capLetter + lowLetters
 }

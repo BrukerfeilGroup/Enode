@@ -3,85 +3,121 @@ using System.Collections.Generic;
 using Xunit;
 using Brukerfeil.Enode.Common.Models;
 using Brukerfeil.Enode.Services;
+using System.Linq;
 
 namespace Brukerfeil.Enode.Tests.ServiceTests
 {
     public class MessagesServiceTest
     {
-        [Fact]
-        public void TestMessageServiceAddLatestStatusNotNull()
+
+        /////////////////
+        ///   STUBS   ///   
+        /////////////////
+
+        private List<DifiMessage> GetDifiMessageListWithStatusStub()
         {
-            //Arrange
-            var messageService = new MessagesService();
-
-            //Act
-            var actual = messageService.AddLatestStatus(messageServiceTestObject());
-
-            //Assert
-            Assert.NotNull(actual);
-        }
-
-        [Fact]
-        public void TestMessageServiceAddLatestStatusType()
-        {
-            //Arrange
-            var messageService = new MessagesService();
-
-            //Act
-            var actual = messageService.AddLatestStatus(messageServiceTestObject());
-
-            //Assert
-            Assert.IsType<List<DifiMessage>>(actual);
-        }
-
-        [Fact]
-        public void TestMessageServiceAddLatestStatusIsUpdated()
-        {
-            //Arrange
-            var messageService = new MessagesService();
-
-            //Act
-            var actual = messageService.AddLatestStatus(messageServiceTestObject());
-
-            //Assert
-
-            foreach (var content in actual)
-            {
-                Assert.Equal("LEVETID_UTLOPT", content.latestMessageStatus);
-            }
-        }
-
-        public IEnumerable<DifiMessage> messageServiceTestObject()
-        {
-            var message = new List<DifiMessage>
+            var difiMessages = new List<DifiMessage>
             {
                 new DifiMessage
                 {
+                    id = 178,
+                    messageTitle = "Title 1",
                     latestMessageStatus = null,
+                    created = DateTime.Parse("2019-04-22T13:34:44.645+12:11"),
                     messageStatuses = new List<MessageStatuses>
                     {
                         new MessageStatuses
                         {
-                            id = 57343,
-                            lastUpdate = Convert.ToDateTime("2020-02-14T12:17:08.214+01:00"),
+                            id = 7700,
+                            lastUpdate = DateTime.Parse("2020-02-22T13:34:44.645+02:00"),
                             status = "OPPRETTET"
                         },
                         new MessageStatuses
                         {
-                            id = 57344,
-                            lastUpdate = Convert.ToDateTime("2020-02-14T12:17:08.216+01:00"),
-                            status = "INNKOMMENDE_MOTTATT"
+                            id = 7702,
+                            lastUpdate = DateTime.Parse("2020-03-23T13:34:44.848+02:00"),
+                            status = "SENDT"
+                        }
+                    }
+                },
+                new DifiMessage
+                {
+                    id = 179,
+                    messageTitle = "Title 2",
+                    latestMessageStatus = null,
+                    created = DateTime.Parse("2019-04-22T13:34:44.645+12:11"),
+                    messageStatuses = new List<MessageStatuses>
+                    {
+                        new MessageStatuses
+                        {
+                            id = 7700,
+                            lastUpdate = DateTime.Parse("2020-02-21T13:34:44.645+02:00"),
+                            status = "OPPRETTET"
                         },
                         new MessageStatuses
                         {
-                            id = 57348,
-                            lastUpdate = Convert.ToDateTime("2020-02-14T14:17:25.362+01:00"),
-                            status = "LEVETID_UTLOPT"
+                            id = 7702,
+                            lastUpdate = DateTime.Parse("2020-03-23T13:34:44.848+02:00"),
+                            status = "SENDT2"
                         }
                     }
                 }
             };
-            return message;
+            return difiMessages;
+        }
+
+        private MessagesService GetMessagesService()
+        {
+            var messagesService = new MessagesService();
+            return messagesService;
+        }
+
+
+
+        //////////////////////
+        ///   UNIT TESTS   ///   
+        //////////////////////
+        [Fact]
+        public void TestMessageServiceAddLatestStatusNotNull()
+        {
+            var messageService = GetMessagesService();
+            var actual = messageService.AddLatestStatusOnList(GetDifiMessageListWithStatusStub());
+            Assert.NotNull(actual);
+        }
+        [Fact]
+        public void TestMessageServiceAddLatestStatusType()
+        {
+            var messageService = GetMessagesService();
+            var actual = messageService.AddLatestStatusOnList(GetDifiMessageListWithStatusStub());
+            Assert.IsType<List<DifiMessage>>(actual);
+        }
+        [Fact]
+        public void TestMessageServiceAddLatestStatusIsUpdated()
+        {
+            var messagesService = GetMessagesService();
+            var actual = messagesService.AddLatestStatusOnList(GetDifiMessageListWithStatusStub());
+            Assert.Equal("SENDT", actual.ToList().ElementAt(0).latestMessageStatus);
+        }
+        [Fact]
+        public void TestMessageServiceAddLatestStatusIsUpdated2()
+        {
+            var messagesService = GetMessagesService();
+            var actual = messagesService.AddLatestStatusOnList(GetDifiMessageListWithStatusStub());
+            Assert.Equal("SENDT2", actual.ToList().ElementAt(1).latestMessageStatus);
+        }
+        [Fact]
+        public void TestMessageServiceAddLatestStatusCreatedField()
+        {
+            var messagesService = GetMessagesService();
+            var actual = messagesService.AddLatestStatusOnList(GetDifiMessageListWithStatusStub());
+            Assert.Equal(DateTime.Parse("2020-02-22T13:34:44.645+02:00"), actual.ToList().ElementAt(0).created);
+        }
+        [Fact]
+        public void TestMessageServiceAddLatestStatusCreatedField2()
+        {
+            var messagesService = GetMessagesService();
+            var actual = messagesService.AddLatestStatusOnList(GetDifiMessageListWithStatusStub());
+            Assert.Equal(DateTime.Parse("2020-02-21T13:34:44.645+02:00"), actual.ToList().ElementAt(1).created);
         }
     }
 }

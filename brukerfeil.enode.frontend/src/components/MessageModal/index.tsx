@@ -31,22 +31,27 @@ const MessageModal: React.FC<MessageModalProps> = props => {
     return (
         <div onClick={() => props.onCloseModal()} className={styles.background}>
             <div onClick={event => event.stopPropagation()} className={styles.container}>
-                <button className={styles.exit} onClick={() => props.onCloseModal()}>
-                    X
-                </button>
+                <button
+                    className={styles.exit}
+                    onClick={() => props.onCloseModal()}
+                ></button>
 
                 <div>
-                    <h1 className={styles.header}>
-                        Melding ID:{' '}
+                    <h1 className={styles.header}>Melding ID </h1>
+
+                    <span className={styles.messageId}>
+                        {' '}
                         {props.message.difiMessage
                             ? props.message.difiMessage.messageId
                             : props.message.elementsMessage.conversationId}
-                    </h1>
+                    </span>
                 </div>
 
                 <div className={styles.content}>
-                    <Timeline message={props.message} />
                     <Table message={props.message} />
+                    {props.message.difiMessage ? (
+                        <Timeline message={props.message} />
+                    ) : null}
                 </div>
             </div>
         </div>

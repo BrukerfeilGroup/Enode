@@ -1,0 +1,45 @@
+# Docker
+# Build a Docker image 
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+  tag: 'latest'
+
+stages:
+- stage: Build
+  displayName: Build image
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+
+    - task: Docker@2
+      displayName: Docker Frontend
+      inputs:
+        containerRegistry: 'Enode'
+        repository: brukerfeil/enode.frontend
+        command: buildAndPush
+        dockerfile: brukerfeil.enode.frontend/Dockerfile
+        buildContext: 'brukerfeil.enode.frontend'
+        tags: |
+          $(tag)
+
+    - task: Docker@2
+      displayName: Docker Backend
+      inputs:
+        containerRegistry: 'Enode'
+        repository: brukerfeil/enode.backend
+        command: buildAndPush
+        dockerfile: Brukerfeil.Enode/Dockerfile
+        buildContext: 'Brukerfeil.Enode'
+        tags: |
+          $(tag)
+

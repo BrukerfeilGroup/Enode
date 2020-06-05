@@ -23,7 +23,6 @@ namespace Brukerfeil.Enode.API.Configurations
 
         private ConfigProvider()
         {
-
             _localConfigRoot = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
@@ -38,12 +37,10 @@ namespace Brukerfeil.Enode.API.Configurations
                 });
 
             _configManager = new CachingConfigManagerDecorator<ConfigWrapper>(ConfigManager);
-
         }
 
         public async Task<OrganizationSchema> GetOrgConfigAsync(string tenant)
         {
-            //Get 
             var tenantConfig = await _configManager.GetTenantConfigAsync(tenant);
             return tenantConfig.OrganizationSchema;
         }

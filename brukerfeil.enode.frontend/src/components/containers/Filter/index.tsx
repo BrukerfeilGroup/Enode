@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styles from './styles.module.css'
+import { capitalisation } from '../../../utils/utils'
 
 type FilterElement = {
     name: string
@@ -8,26 +9,27 @@ type FilterElement = {
 
 export type CheckboxStructure = {
     latestMessageStatus: FilterElement[]
-    serviceIdentifier: FilterElement[]
+    sendingStatus: FilterElement[]
 }
 
 export type Filters = {
     [key: string]: string[]
 }
 
-type Categories = 'latestMessageStatus' | 'serviceIdentifier'
+type Categories = 'latestMessageStatus' | 'sendingStatus'
 
 type FilterBoxProps = {
     onFilterChange: (filters: Filters) => void
     onCheckboxChange: (checkbox: CheckboxStructure) => void
     initialFilter: Filters
     checkboxStructure: CheckboxStructure
+    onCloseFilter: () => void
 }
 const FilterBox: React.FC<FilterBoxProps> = props => {
-    const [checkboxes, setCheckboxes] = useState<CheckboxStructure>(
-        props.checkboxStructure
-    )
+    // prettier-ignore
+    const [checkboxes, setCheckboxes] = useState<CheckboxStructure>(props.checkboxStructure)
     const [filters, setFilters] = useState<Filters>(props.initialFilter)
+
     const handleCheckboxChange = (name: string, key: Categories) => {
         const updatedCategory = checkboxes[key].map(f => {
             if (f.name === name) {
@@ -37,7 +39,6 @@ const FilterBox: React.FC<FilterBoxProps> = props => {
         })
 
         setCheckboxes({ ...checkboxes, [key]: updatedCategory })
-
         if (!filters[key].find(f => f === name)) {
             setFilters({ ...filters, [key]: [...filters[key], name] })
         } else {
@@ -57,13 +58,33 @@ const FilterBox: React.FC<FilterBoxProps> = props => {
                         type="checkbox"
                         name={f.name}
                         checked={f.toggled}
+                        onChange={() => handleCheckboxChange(f.name, key)}
                         key={i}
                     ></input>
-                    <label htmlFor={f.name}>{f.name}</label>
+                    <label htmlFor={f.name}>{capitalisation(f.name)}</label>
                 </li>
             </React.Fragment>
         ))
     }
+
+    const escClick = useCallback(
+        (event: KeyboardEvent) => {
+            if (event.keyCode === 27) {
+                props.onCloseFilter()
+            }
+        },
+        [props]
+    )
+
+    // Adds event listener for clicking escape
+    useEffect(() => {
+        document.addEventListener('keydown', escClick, false)
+
+        return () => {
+            document.removeEventListener('keydown', escClick)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         props.onFilterChange(filters)
@@ -72,19 +93,20 @@ const FilterBox: React.FC<FilterBoxProps> = props => {
     }, [filters, checkboxes])
 
     return (
-        <div className={styles.container}>
-            <div className={styles.content}>
-                <p className={styles.header}>Status</p>
-                <p className={styles.header2}>Type</p>
-            </div>
-            <div className={styles.content2}>
-                <div className={styles.table}>
-                    <ul>{renderFilters('latestMessageStatus')}</ul>
+        <div onClick={() => props.onCloseFilter()} className={styles.background}>
+            <div onClick={event => event.stopPropagation()} className={styles.container}>
+                <div className={styles.content}>
+                    <p className={styles.header}>Difi status</p>
+                    <p className={styles.header2}>Elements status</p>
                 </div>
-
-                <div className={styles.table2}>
-                    <ul>{renderFilters('serviceIdentifier')}</ul>
+                <div className={styles.content2}>
+                    <div className={styles.table}>
+                        <ul>{renderFilters('latestMessageStatus')}</ul>
+                    </div>
                     <div className={styles.bar}></div>
+                    <div className={styles.table2}>
+                        <ul>{renderFilters('sendingStatus')}</ul>
+                    </div>
                 </div>
             </div>
         </div>

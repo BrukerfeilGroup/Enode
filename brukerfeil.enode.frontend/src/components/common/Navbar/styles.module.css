@@ -16,18 +16,22 @@
     cursor: pointer;
 }
 
+.hamburger:hover {
+    color: grey;
+}
+
 .brand {
-    font-size: 3.5em;
+    font-size: 3.7em;
     font-weight: normal;
     margin-right: auto;
-    margin: 0.2em;
+    margin: 0.3em;
     color: var(--standard);
 }
 
 .organization {
-    font-size: 1.8em;
+    font-size: 2em;
     margin-left: 0.5em;
-    margin-bottom: 0.1em;
+    margin-bottom: 0.2em;
     color: white;
 }
 
@@ -44,61 +48,55 @@
 .filter:hover {
     color: grey;
 }
-/*---classes which is passed to the SearchsenderReceiver*/
-.searchContainer {
-    display: inline-block;
+
+.filterNotvisible {
+    font-size: 2.5rem;
+    margin-right: 1rem;
+    visibility: hidden;
 }
 
-.search {
-    font-size: inherit;
-    width: 225px;
-    padding: 0.5rem;
+.searchContentNotvisible {
+    margin-left: auto;
+    visibility: hidden;
+}
+/*---classes which is passed to the SearchsenderReceiver*/
+.form {
+    margin-left: auto;
+    margin-right: 0.5em;
+    order: 2;
+    border: none;
+    padding: 0px;
+    font-size: 1.5rem;
+    padding: 0.3rem;
     border-radius: 0.3em;
-    border: 0.05em solid grey;
-    margin: 0.1em;
     color: grey;
-    background-color: var(--standard);
+    background-color: #ececec;
     transition: width 0.5s;
 }
 
-.clearButton,
+.search {
+    font-size: 1em;
+    width: 350px;
+    background-color: transparent;
+    flex-grow: 2;
+    border: none;
+    margin-left: 0.1em;
+    color: grey;
+    outline: none;
+}
+
 .confirmButton {
     cursor: pointer;
-    font-size: inherit;
-    width: auto;
-    padding: 0.3em;
-    padding-bottom: 0.32em;
-    margin: 0.1em;
-    border-radius: 0.5rem;
-    border: 0.05em solid grey;
+    font-size: 1.15em;
+    background-color: transparent;
     color: grey;
-    background-color: var(--standard);
+    border: none;
+    -moz-box-sizing: content-box; /* or `border-box` */
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+    outline: none;
 }
 
 .confirmButton:hover {
-    color: #f9f9f9;
-    border-color: #399639;
-    background-color: #399639;
-}
-
-.clearButton:hover {
-    color: white;
-    border-color: var(--secondary);
-    background-color: var(--secondary);
-}
-
-.fieldset {
-    border: none;
-    padding: 0px;
-    font-size: 1.6rem;
-}
-
-.filter {
-    font-size: 2.5rem;
-    color: #f9f9f9;
-    margin-right: 1rem;
-    cursor: pointer;
-}
-.filter:hover {
-    color: grey;
+    color: #131212;
 }

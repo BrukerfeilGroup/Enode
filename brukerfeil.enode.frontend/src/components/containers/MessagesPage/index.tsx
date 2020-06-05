@@ -1,46 +1,39 @@
 import React, { useState, useEffect } from 'react'
-import { match } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import Message from '../../../types/Message'
 import useMessages from '../../../hooks/useMessages'
-import InOrOutbox from '../../common/InOrOutbox'
+import MessageTableContainer from '../MessageTableContainer'
 import Navbar from '../../common/Navbar'
 import MessageModal from '../../MessageModal'
 import { filterMessages, initialFilter, checkboxStructure } from '../../../utils/utils'
 import { MESSAGES_IN_ENDPOINT, MESSAGES_OUT_ENDPOINT } from '../../../constants'
-import HamburgerMenu from '../../HamburgerMenu'
+import HamburgerMenu from '../../common/HamburgerMenu'
 import FilterBox, { Filters, CheckboxStructure } from '../../containers/Filter'
-import LoadingIndicator from '../../common/LoadingIndicator'
+import { useParams } from 'react-router-dom'
 import styles from './styles.module.css'
 
-type MessagesPageRouteParams = {
-    id: string
-}
-
-export type MessagesPageProps = {
-    match: match<MessagesPageRouteParams>
-}
-
-const MessagesPage: React.FC<MessagesPageProps> = props => {
+const MessagesPage: React.FC = () => {
     //orgId from browers URL
-    const orgId = props.match.params.id
-
-    const [inMessages, setInMessages] = useState<Message[]>([]) //State for incoming messages
-    const [outMessages, setOutMessages] = useState<Message[]>([]) //State for outgoing messages
-    const [activeMessage, setActiveMessage] = useState<Message>() //State for a selected message
-    const [filteredSenderOrg, setFilteredSenderOrg] = useState<string>('')
-    const [filteredReceiverOrg, setFilteredReceiverOrg] = useState<string>('')
+    const { orgId } = useParams<{ orgId: string }>()
+    const [inMessages, setInMessages] = useState<Message[]>([]) // State for incoming messages - may be filtered
+    const [outMessages, setOutMessages] = useState<Message[]>([]) // State for outgoing messages - may be filtered
+    const [activeMessage, setActiveMessage] = useState<Message>() // State for a selected message
+    const [filteredSenderOrg, setFilteredSenderOrg] = useState<string>('') // The orgId a user has filtered incoming messages on
+    const [filteredReceiverOrg, setFilteredReceiverOrg] = useState<string>('') // The orgId a user has filtered outgoing messages on
     const [isHamburgerOpen, setIsHamburgerOpen] = useState<boolean>(false)
+    const [conversationIdFilteredBy, setConversationIdFilteredBy] = useState<string>('') // The id which user has inputted in the search field in navbar
     const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false)
     const [filters, setFilters] = useState<Filters>(initialFilter)
-    const [checkboxes, setCheckboxes] = useState<CheckboxStructure>(checkboxStructure)
+    const [checkboxes, setCheckboxes] = useState<CheckboxStructure>(checkboxStructure) // Object representing which checkboxes are checked (in filters)
 
     //All objects and functions regarding messages
     const {
-        tempInMessages,
+        tempInMessages, // The messages directly from API, before any frontend filtering/sorting
         tempOutMessages,
         searchedMessage,
         setSearchedMessage,
-        isFetching,
+        isFetchingIn,
+        isFetchingOut,
         fetchBySenderId,
         fetchByReceiverId,
         fetchMessages,
@@ -83,23 +76,46 @@ const MessagesPage: React.FC<MessagesPageProps> = props => {
 
     const handleSearchMessageId = (messageId: string) => {
         setError('')
-        setSearchedMessage(undefined)
+        setSearchedMessage(null)
         fetchByMessageId(messageId)
-        setActiveMessage(searchedMessage)
     }
 
-    const handleFilterChange = (filters: Filters) => {
-        setInMessages(filterMessages(tempInMessages, filters))
-        setOutMessages(filterMessages(tempOutMessages, filters))
-        populatedFilters(filters)
+    const filterByConversationId = (
+        input = conversationIdFilteredBy,
+        incomingMessages = tempInMessages,
+        outgoingMessages = tempOutMessages
+    ) => {
+        const filteredIn = incomingMessages.filter(m => {
+            const regExp = new RegExp(`(${input})`, 'gi')
+            return regExp.test(m.difiMessage.conversationId)
+        })
+
+        const filteredOut = outgoingMessages.filter(m => {
+            const regExp = new RegExp(`(${input})`, 'gi')
+            return regExp.test(m.elementsMessage.conversationId)
+        })
+        setInMessages(filteredIn)
+        setOutMessages(filteredOut)
+        setConversationIdFilteredBy(input)
     }
 
-    const handleCheckboxChange = (checkboxStructure: CheckboxStructure) => {
-        populatedCheckboxes(checkboxStructure)
+    /**
+     * Filters the original list first by the checkbo x filters, THEN filters by a conversationId.
+     * This is prevents overriding the conversationId filter
+     *
+     * @param filters the objects which represents which filters are active
+     * @param input a string which represents a conversation id
+     */
+    const handleFiltering = (filters: Filters, input = conversationIdFilteredBy) => {
+        const incomingMessages = filterMessages(tempInMessages, filters)
+        const outgoingMessages = filterMessages(tempOutMessages, filters)
+
+        filterByConversationId(input, incomingMessages, outgoingMessages)
+        setFilters(filters)
     }
 
     useEffect(() => {
-        setActiveMessage(searchedMessage)
+        if (searchedMessage) setActiveMessage(searchedMessage)
     }, [searchedMessage])
 
     useEffect(() => {
@@ -107,31 +123,34 @@ const MessagesPage: React.FC<MessagesPageProps> = props => {
         setOutMessages(tempOutMessages)
     }, [tempInMessages, tempOutMessages])
 
-    const populatedFilters = (initialFilter: Filters) => {
-        setFilters(initialFilter)
+    if (error.includes('status code 400')) {
+        return <Redirect to="/enode-frontend" />
     }
 
-    const populatedCheckboxes = (checkboxStructure: CheckboxStructure) => {
-        setCheckboxes(checkboxStructure)
-    }
     return (
         <>
             <Navbar
+                filters={true}
                 orgId={orgId}
                 toggleHamburger={() => setIsHamburgerOpen(!isHamburgerOpen)}
                 toggleFilter={() => setIsFilterOpen(!isFilterOpen)}
                 onSearch={handleSearchMessageId}
+                onFilterMessage={input => handleFiltering(filters, input)}
             />
-            {isHamburgerOpen && <HamburgerMenu org={orgId} />}
+            {isHamburgerOpen && (
+                <HamburgerMenu
+                    org={orgId}
+                    onCloseHamburger={() => setIsHamburgerOpen(false)}
+                />
+            )}
 
             {isFilterOpen && (
                 <FilterBox
                     checkboxStructure={checkboxes}
-                    onCheckboxChange={checkboxStructure =>
-                        handleCheckboxChange(checkboxStructure)
-                    }
+                    onCheckboxChange={setCheckboxes}
                     initialFilter={filters}
-                    onFilterChange={initialFilter => handleFilterChange(initialFilter)}
+                    onFilterChange={handleFiltering}
+                    onCloseFilter={() => setIsFilterOpen(false)}
                 />
             )}
             {error && (
@@ -140,34 +159,30 @@ const MessagesPage: React.FC<MessagesPageProps> = props => {
                 </div>
             )}
             <div className={styles.container}>
-                {isFetching ? (
-                    <LoadingIndicator size="LARGE" />
-                ) : (
-                    <>
-                        <InOrOutbox
-                            direction="IN"
-                            messages={inMessages}
-                            filteredOrgId={filteredSenderOrg}
-                            onChangeActive={findMessage}
-                            onSearch={handleSearchIngoingMessages}
-                            onClearFilteredMessages={handleClearIncomingMessages}
-                        />
-                        <InOrOutbox
-                            direction="OUT"
-                            messages={outMessages}
-                            filteredOrgId={filteredReceiverOrg}
-                            onChangeActive={findMessage}
-                            onSearch={handleSearchOutgoingMessages}
-                            onClearFilteredMessages={handleClearOutgoingMessages}
-                        />
+                <MessageTableContainer
+                    incoming
+                    messages={inMessages}
+                    filteredOrgId={filteredSenderOrg}
+                    onChangeActive={findMessage}
+                    onSearch={handleSearchIngoingMessages}
+                    onClearFilteredMessages={handleClearIncomingMessages}
+                    isFetching={isFetchingIn}
+                />
+                <MessageTableContainer
+                    incoming={false}
+                    messages={outMessages}
+                    filteredOrgId={filteredReceiverOrg}
+                    onChangeActive={findMessage}
+                    onSearch={handleSearchOutgoingMessages}
+                    onClearFilteredMessages={handleClearOutgoingMessages}
+                    isFetching={isFetchingOut}
+                />
 
-                        {!error && activeMessage && (
-                            <MessageModal
-                                message={activeMessage}
-                                onCloseModal={() => setActiveMessage(undefined)}
-                            />
-                        )}
-                    </>
+                {!error && activeMessage && (
+                    <MessageModal
+                        message={activeMessage}
+                        onCloseModal={() => setActiveMessage(undefined)}
+                    />
                 )}
             </div>
         </>

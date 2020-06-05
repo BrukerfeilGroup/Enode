@@ -23,6 +23,6 @@ RUN dotnet publish Brukerfeil.Enode.API/Brukerfeil.Enode.API.csproj -c Release -
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 COPY --from=build /app/out ./
-ENV ASPNETCORE_URLS="http://+:53980"
+ENV ASPNETCORE_URLS="http://+:5000"
 ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENTRYPOINT ["dotnet", "Brukerfeil.Enode.API.dll", "--server.urls", "http://+:53980"]
+ENTRYPOINT ["dotnet", "Brukerfeil.Enode.API.dll", "--server.urls", "http://+:5000"]

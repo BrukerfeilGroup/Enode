@@ -28,7 +28,7 @@ export type DifiMessage = {
     receiverIdentifier: number
     processIdentifier: string //urn:no:difi:profile:arkivmelding:administrasjon:ver1.0,
     messageReference: string //40c8ccb8-aed8-4e1f-b87e-e27c0895813d,
-    messageTitle: string
+    messageTitle: string | null
     lastUpdate: Date //2020-02-03T22:22:25.061+01:00,
     finished: boolean //true,
     expiry: Date //2020-02-03T22:21:56.71+01:00,

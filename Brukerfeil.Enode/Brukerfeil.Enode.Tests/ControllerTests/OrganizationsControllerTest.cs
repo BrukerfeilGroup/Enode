@@ -41,7 +41,7 @@ namespace Brukerfeil.Enode.Test.OrganizationsControllerTests
             var actual = await orgController.GetOrgConfigAsync(mockConfigService.Object);
 
             //Assert
-            Assert.IsType<List<Organization>>(actual);
+            Assert.IsType<Organization>(actual.Value.ElementAt(0));
 
         }
 
@@ -59,8 +59,8 @@ namespace Brukerfeil.Enode.Test.OrganizationsControllerTests
             var actual = await orgController.GetOrgConfigAsync(mockConfigService.Object);
 
             //Assert
-            Assert.True(actual.ToList().ElementAt(0).OrgId == expected.ElementAt(0).OrgId &&
-                actual.ToList().ElementAt(0).OrgName == expected.ElementAt(0).OrgName);
+            Assert.True(actual.Value.ElementAt(0).OrgId == expected.ElementAt(0).OrgId &&
+                actual.Value.ElementAt(0).OrgName == expected.ElementAt(0).OrgName);
 
         }
 

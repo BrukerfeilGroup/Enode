@@ -62,10 +62,14 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
                 new ElementsMessage
                 {
                     ExternalId = "989778471",
+                    Name = "ElementsMessage1",
+                    ConversationId = "ConvId1",
                 },
                 new ElementsMessage
                 {
                     ExternalId = "922308055",
+                    Name = "ElementsMessage2",
+                    ConversationId = "ConvId2",
                 }
             };
             return elementsMessages;
@@ -85,7 +89,9 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
                 .ReturnsAsync(new HttpResponseMessage()
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent("{\"value\": [{\"ConversationId\": \"aaed7220-2a0d-45a6-a2a4-3b24a069e08b\", \"ExternalId\": \"989778471\"}, {\"ExternalId\": \"922308055\"}]}")
+                    Content = new StringContent("{\"value\": [" +
+                    "{\"ExternalId\": \"989778471\", \"ConversationId\": \"ConvId1\", \"Name\": \"ElementsMessage1\"}, " +
+                    "{\"ExternalId\": \"922308055\", \"ConversationId\": \"ConvId2\", \"Name\": \"ElementsMessage2\"}]}")
                 })
                 .Verifiable();
 
@@ -129,6 +135,26 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetElementsMessagesAsync("922308055", Direction.INCOMING);
             Assert.IsType<List<ElementsMessage>>(actual);
         }
+        [Fact]
+        public async void TestGetElementsMessagesFieldCheck1Async()
+        {
+            var messageRepository = GetMessageRepository("922308055");
+            var actual = await messageRepository.GetElementsMessagesAsync("922308055", Direction.INCOMING);
+            Assert.True(
+                GetElementsMessageListStub().ToList().ElementAt(0).ConversationId == actual.ToList().ElementAt(0).ConversationId
+                && GetElementsMessageListStub().ToList().ElementAt(0).Name ==        actual.ToList().ElementAt(0).Name
+                && GetElementsMessageListStub().ToList().ElementAt(0).ExternalId ==  actual.ToList().ElementAt(0).ExternalId);
+        }
+        [Fact]
+        public async void TestGetElementsMessagesFieldCheck2Async()
+        {
+            var messageRepository = GetMessageRepository("922308055");
+            var actual = await messageRepository.GetElementsMessagesAsync("922308055", Direction.INCOMING);
+            Assert.True(
+                GetElementsMessageListStub().ToList().ElementAt(1).ConversationId == actual.ToList().ElementAt(1).ConversationId
+                && GetElementsMessageListStub().ToList().ElementAt(1).Name ==        actual.ToList().ElementAt(1).Name
+                && GetElementsMessageListStub().ToList().ElementAt(1).ExternalId ==  actual.ToList().ElementAt(1).ExternalId);
+        }
 
 
         //Method GetElementsMessageAsync()
@@ -136,23 +162,34 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
         public async void TestGetElementsMessageNotNullAsync()
         {
             var messageRepository = GetMessageRepository("922308055");
-            var actual = await messageRepository.GetElementsMessageAsync("922308055", "aaed7220-2a0d-45a6-a2a4-3b24a069e08b");
+            var actual = await messageRepository.GetElementsMessageAsync("922308055", "ConvId2");
             Assert.NotNull(actual);
         }
         [Fact]
         public async void TestGetElementsMessageHasIdAsync()
         {
             var messageRepository = GetMessageRepository("922308055");
-            var actual = await messageRepository.GetElementsMessageAsync("922308055", "aaed7220-2a0d-45a6-a2a4-3b24a069e08b");
+            var actual = await messageRepository.GetElementsMessageAsync("922308055", "ConvId2");
             Assert.NotNull(actual.ConversationId);
         }
         [Fact]
-        public async void TestGetElementsMessageCorrectIdAsync()
+        public async void TestGetElementsMessageIsTypeAsync()
         {
             var messageRepository = GetMessageRepository("922308055");
-            var actual = await messageRepository.GetElementsMessageAsync("922308055", "aaed7220-2a0d-45a6-a2a4-3b24a069e08b");
-            Assert.Equal("aaed7220-2a0d-45a6-a2a4-3b24a069e08b", actual.ConversationId);
+            var actual = await messageRepository.GetElementsMessageAsync("922308055", "ConvId2");
+            Assert.IsType<ElementsMessage>(actual);
         }
+        [Fact]
+        public async void TestGetElementsMessageFieldCheckAsync()
+        {
+            var messageRepository = GetMessageRepository("922308055");
+            var actual = await messageRepository.GetElementsMessageAsync("922308055", "ConvId1");
+            Assert.True(
+                GetElementsMessageListStub().ToList().ElementAt(0).ConversationId == actual.ConversationId &&
+                GetElementsMessageListStub().ToList().ElementAt(0).Name ==           actual.Name &&
+                GetElementsMessageListStub().ToList().ElementAt(0).ExternalId ==     actual.ExternalId);
+        }
+
 
         //Method GetElementsMessagesBySenderIdAsync()
         [Fact]
@@ -162,7 +199,6 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetElementsMessagesBySenderIdAsync("922308055", "989778471");
             Assert.NotNull(actual);
         }
-
         [Fact]
         public async void TestGetElementsMessagesBySenderIdAsyncType()
         {
@@ -170,7 +206,6 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetElementsMessagesBySenderIdAsync("922308055", "989778471");
             Assert.IsType<ElementsMessage>(actual.ToList().ElementAt(0));
         }
-
         [Fact]
         public async void TestGetElementsMessagesBySenderIdAsyncCorrectSenderId()
         {
@@ -180,8 +215,8 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             Assert.Equal(actual.ToList().ElementAt(0).ExternalId, expected.ToList().ElementAt(0).ExternalId);
         }
 
-        //Method GetElementsMessagesByReceiverIdAsync()
 
+        //Method GetElementsMessagesByReceiverIdAsync()
         [Fact]
         public async void TestGetElementsMessagesByReceiverIdAsyncNotNull()
         {
@@ -189,7 +224,6 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetElementsMessagesByReceiverIdAsync("989778471", "922308055");
             Assert.NotNull(actual);
         }
-
         [Fact]
         public async void TestGetElementsMessagesByReceiverIdAsyncType()
         {
@@ -197,7 +231,6 @@ namespace Brukerfeil.Enode.Tests.RepositoryTests
             var actual = await messageRepository.GetElementsMessagesByReceiverIdAsync("989778471", "922308055");
             Assert.IsType<ElementsMessage>(actual.ToList().ElementAt(0));
         }
-
         [Fact]
         public async void TestGetElementsMessagesByReceiverIdAsyncCorrectReceiverId()
         {

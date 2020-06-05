@@ -1,0 +1,40 @@
+.form {
+    margin-left: auto;
+    margin-right: 0.5em;
+    order: 2;
+    border: none;
+    padding: 0px;
+    font-size: 1.2rem;
+    padding: 0.3rem;
+    border-radius: 0.3em;
+    color: grey;
+    background-color: #ececec;
+    transition: width 0.5s;
+}
+
+.search {
+    font-size: 1.1em;
+    width: 200px;
+    background-color: transparent;
+    flex-grow: 2;
+    border: none;
+    margin-left: 0.1em;
+    color: grey;
+    outline: none;
+}
+
+.confirmButton {
+    cursor: pointer;
+    font-size: 1.15em;
+    background-color: transparent;
+    color: grey;
+    border: none;
+    -moz-box-sizing: content-box; /* or `border-box` */
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+    outline: none;
+}
+
+.confirmButton:hover {
+    color: #131212;
+}

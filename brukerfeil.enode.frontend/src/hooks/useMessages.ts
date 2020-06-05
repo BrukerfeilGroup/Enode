@@ -22,8 +22,9 @@ const headers = {
 export default (orgId: string) => {
     const [tempInMessages, setTempInMessages] = useState<Message[]>([])
     const [tempOutMessages, setTempOutMessages] = useState<Message[]>([])
-    const [searchedMessage, setSearchedMessage] = useState<Message | undefined>()
-    const [isFetching, setIsFetching] = useState<boolean>(true)
+    const [searchedMessage, setSearchedMessage] = useState<Message | null>(null)
+    const [isFetchingIn, setIsFetchingIn] = useState<boolean>(true)
+    const [isFetchingOut, setIsFetchingOut] = useState<boolean>(true)
     const [error, setError] = useState<string>('')
 
     /**
@@ -32,7 +33,7 @@ export default (orgId: string) => {
      *  The sender's organization id.
      */
     const fetchBySenderId = async (id: string): Promise<void> => {
-        setIsFetching(true)
+        setIsFetchingIn(true)
         try {
             const endpoint = `${getBackendBaseUri()}/${orgId}/messages/sender/${id}`
             const response = await axios.get<Message[]>(endpoint, headers)
@@ -41,7 +42,7 @@ export default (orgId: string) => {
             console.log(`Error when fetching messages: ${exception}`)
             setError(`Error when fetching messages: ${exception}`)
         }
-        setIsFetching(false)
+        setIsFetchingIn(false)
     }
 
     /**
@@ -50,7 +51,7 @@ export default (orgId: string) => {
      *  The recipient's organization id.
      */
     const fetchByReceiverId = async (id: string): Promise<void> => {
-        setIsFetching(true)
+        setIsFetchingOut(true)
         try {
             const endpoint = `${getBackendBaseUri()}/${orgId}/messages/receiver/${id}`
             const response = await axios.get<Message[]>(endpoint, headers)
@@ -59,7 +60,7 @@ export default (orgId: string) => {
             console.log(`Error when fetching messages: ${exception}`)
             setError(`Error when fetching messages: ${exception}`)
         }
-        setIsFetching(false)
+        setIsFetchingOut(false)
     }
 
     /**
@@ -68,7 +69,6 @@ export default (orgId: string) => {
      *  The recipient's organization id.
      */
     const fetchByMessageId = async (messageId: string): Promise<void> => {
-        setIsFetching(true)
         try {
             const endpoint = `${getBackendBaseUri()}/${orgId}/messages/${messageId}`
             const response = await axios.get<Message>(endpoint, headers)
@@ -77,7 +77,6 @@ export default (orgId: string) => {
             console.log(`Error when fetching messages: ${exception}`)
             setError(`Error when fetching messages: ${exception}`)
         }
-        setIsFetching(false)
     }
 
     /**
@@ -87,7 +86,11 @@ export default (orgId: string) => {
      *  The endpoint messages will be fetched from.
      */
     const fetchMessages = async (endpoint: string): Promise<void> => {
-        setIsFetching(true)
+        if (endpoint === MESSAGES_IN_ENDPOINT) {
+            setIsFetchingIn(true)
+        } else {
+            setIsFetchingOut(true)
+        }
         // const messages: Message[] = []
 
         // for (let i = 0; i < 200; i++) {
@@ -116,7 +119,11 @@ export default (orgId: string) => {
             console.log(`Error when fetching messages: ${exception}`)
             setError(`Error when fetching messages: ${exception}`)
         }
-        setIsFetching(false)
+        if (endpoint === MESSAGES_IN_ENDPOINT) {
+            setIsFetchingIn(false)
+        } else {
+            setIsFetchingOut(false)
+        }
     }
 
     useEffect(() => {
@@ -130,7 +137,8 @@ export default (orgId: string) => {
         tempInMessages,
         tempOutMessages,
         searchedMessage,
-        isFetching,
+        isFetchingIn,
+        isFetchingOut,
         error,
         setError,
         setSearchedMessage,
